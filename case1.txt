@@ -1,0 +1,23 @@
+CHIP 25 50
+SOFTMODULE 10
+m1 25
+m2 13
+m3 17
+m4 8
+m5 5
+m6 30
+m7 31
+m8 12
+m9 2
+m10 14
+FIXEDMODULE 2
+f1 10 20 8 5
+f2 1 7 3 5
+CONNECTION 7
+m1 m2 20
+m5 m3 2
+m4 m5 8
+m7 m2 100
+m8 m9 1
+m1 m10 3
+m3 m6 2000
