@@ -2,4 +2,4 @@ By typing below command in terminal
 
 make
 
-./floorplan <input filename>
+./floorplan input_filename
