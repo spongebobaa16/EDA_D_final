@@ -13,22 +13,31 @@ public:
 
 class Contour_horizontal{
 public:
-    Contour_horizontal (int _x, int _l):to_x(_x),height_base(_l) {}
+    Contour_horizontal (int _x, int _l):til_x(_x),height(_l) {}
     Contour_horizontal (){}
     ~Contour_horizontal(){}
 
-    int to_x;           //
-    int height_base;
+    int til_x;           //
+    int height;
 };
 
 class Contour_vertical{
 public:
-    Contour_vertical (int _y, int _l):to_y(_y), width_base(_l) {}
+    Contour_vertical (int _y, int _l):til_y(_y), width(_l) {}
     Contour_vertical (){}
     ~Contour_vertical(){}
 
-    int to_y;
-    int width_base;
+    int til_y;
+    int width;
+};
+
+class Width_Height{
+public:
+    Width_Height(int w, int h): width(w), height(h){}
+    Width_Height(){}
+    ~Width_Height(){}
+    int width;
+    int height;
 };
 
 #endif

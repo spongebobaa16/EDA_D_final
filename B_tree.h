@@ -1,6 +1,7 @@
 #ifndef B_TREE_H
 #define B_TREE_H
 #include <vector>
+#include <iostream>
 using namespace std;
 
 // https://www.cprogramming.com/tutorial/lesson18.html
@@ -9,7 +10,7 @@ class Solver;
 class Node{
 public:
     Node(){}
-    Node(int _index): parent(0), left(0), right(0), index(index) {}
+    Node(int _index): parent(0), left(0), right(0), index(_index) {}
     ~Node(){}
     
     Node *parent;
@@ -31,7 +32,11 @@ public:
     // Node*   search(int index);    // == Tree_vec[index]                    
     void    swap(int index1, int index2);
     void    destroy_tree();   
-private:
+
+
+    // Debug
+    void    printTreePreorder(Node* node);
+
     Node* root;
     vector<Node*> Tree_vec;
 };
