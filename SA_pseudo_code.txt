@@ -25,7 +25,7 @@ accept(c(j), c(i), T){
     delta_c = c(j)-c(i);
     y=f(delta_c, T);
     r=random(0,1);
-    Y(r < y){
+    if(r < y){
         return(1); //accept
     } 
     else{
