@@ -1,3 +1,11 @@
+/*To determine the value of T0, perform a sequence of 
+* random moves and compute delta_avg, the average of 
+* change in cost in uphill moves. 
+*/
+
+//T0 = delta_avg/ln(P)
+//P is close to 1
+
 SA (j0, T0){
     /*
     * Given an initial tree j0 & and an
@@ -6,7 +14,7 @@ SA (j0, T0){
     T= T0;
     X= j0;
     while(not frozen){
-        for i=1 to 4    
+        for i=1 to 4{  
             j = move(X, i); // perturb tree X by move i
 
             delta_c=c(j), c(X);
@@ -34,7 +42,7 @@ accept(c(j), c(i), T){
 }
 
 f(delta_c, T){
-    return min(1, exp(-delta_c/T));
+    return exp(-delta_c/T);
 }
 
-//to be defined: cost function, freezing temperature
+//to be defined: P, cost function, freezing temperature
