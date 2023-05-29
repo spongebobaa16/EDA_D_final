@@ -14,35 +14,29 @@ SA (j0, T0){
     T= T0;
     X= j0;
     while(not frozen){
-        for i=1 to 4{  
-            j = move(X, i); //perturb tree X by move i
+        j = move(X, i); //perturb tree X by move i
 
-            delta_c=c(j)-c(X);
-            if(delta_c<=0) //down-hill move
+        delta_c=c(j)-c(X);
+        if(delta_c<=0) //down-hill move
+            X=j;
+        else{ //uphill move
+            if(accept(delta_c, T)) //decide if we should accept the new tree j
                 X=j;
-            else{ //uphill move
-                if(accept(delta_c, T)) //decide if we should accept the new tree j
-                    X=j;
-            }
         }
         T= update(T);
     }
 }
 
-accept(c(j), c(i), T){
-    delta_c = c(j)-c(i);
-    y=f(delta_c, T);
+accept(delta_c, T){
+    prob=exp(-delta_c/T);
     r=random(0,1);
-    if(r < y){
-        return(1); //accept
+    if(r < prob){
+        return 1; //accept
     } 
     else{
-        return(0);
+        return 0;
     }
 }
 
-f(delta_c, T){
-    return exp(-delta_c/T);
-}
 
 //to be defined: P, cost function, freezing temperature
