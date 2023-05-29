@@ -157,14 +157,18 @@ int Solver::findYandUpdateContour_H(int index, int from_x, int to_x){
     int insert_place = 0;
     bool init = false;
     for(int i=0; i<Contour_H.size();i++){
-        if(!init && Contour_H[i].til_x > to_x){
+        if(!init && Contour_H[i].til_x >= to_x){
             max_height = Contour_H[i].height; 
             init = true;
         }
     }
+    cout << "pre_max_height: " << max_height << endl;
     for(int i=Contour_H.size()-1; i >= 0; i--){
         if(Contour_H[i].til_x > from_x && Contour_H[i].til_x <= to_x){
-            if(Contour_H[i].height > max_height){
+            if(Contour_H[i].height <= max_height){
+                Contour_H.erase(Contour_H.begin()+i);
+            }
+            else{
                 max_height = Contour_H[i].height;
                 Contour_H.erase(Contour_H.begin()+i);
             }
