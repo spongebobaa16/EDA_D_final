@@ -4,7 +4,7 @@
 */
 
 //T0 = delta_avg/ln(P)
-//P is close to 1
+//P is set close to 1
 
 SA (j0, T0){
     /*
@@ -15,9 +15,9 @@ SA (j0, T0){
     X= j0;
     while(not frozen){
         for i=1 to 4{  
-            j = move(X, i); // perturb tree X by move i
+            j = move(X, i); //perturb tree X by move i
 
-            delta_c=c(j), c(X);
+            delta_c=c(j)-c(X);
             if(delta_c<=0) //down-hill move
                 X=j;
             else{ //uphill move
