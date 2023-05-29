@@ -14,14 +14,16 @@ SA (j0, T0){
     T= T0;
     X= j0;
     while(not frozen){
-        j = move(X, i); //perturb tree X by move i
+        for i=1 to n{
+            j = move(X); //perturb tree X randomly?
 
-        delta_c=c(j)-c(X);
-        if(delta_c<=0) //down-hill move
-            X=j;
-        else{ //uphill move
-            if(accept(delta_c, T)) //decide if we should accept the new tree j
+            delta_c=c(j)-c(X);
+            if(delta_c<=0) //down-hill move
                 X=j;
+            else{ //uphill move
+                if(accept(delta_c, T)) //decide if we should accept the new tree j
+                    X=j;
+            }
         }
         T= update(T);
     }
