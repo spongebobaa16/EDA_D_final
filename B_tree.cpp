@@ -11,13 +11,13 @@ void B_Tree::create_tree(const Solver& s){
     // Manually initial B_Tree below, for debugging 
     
     root = Tree_vec[0];
-    // insert(1, 0, true, false);
-    // insert(2, 0, false, false);
-    // insert(3, 1, false, false);
-    // insert(4, 3, true, false);
-    // insert(5, 2, true, false);
-    // insert(6, 2, false, false);
-    // insert(7, 6, true, false);
+    insert(1, 0, true, false);
+    insert(2, 0, false, false);
+    insert(3, 1, false, false);
+    insert(4, 3, true, false);
+    insert(5, 2, true, false);
+    insert(6, 2, false, false);
+    insert(7, 6, true, false);
 
 
     // insert(1, 0, false, false);
@@ -32,10 +32,10 @@ void B_Tree::create_tree(const Solver& s){
     // insert(10, 9, false, false);
     // insert(11, 8, true, false);
 
-    insert(1, 0, true, false);
-    insert(2, 1, true, false);
-    insert(3, 1, false, false);
-    insert(4, 0, false, false);
+    // insert(1, 0, true, false);
+    // insert(2, 1, true, false);
+    // insert(3, 1, false, false);
+    // insert(4, 0, false, false);
     // insert(5, 4, false, false);
 
     // insert(1, 0, true, false);

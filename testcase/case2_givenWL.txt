@@ -1,9 +1,9 @@
-CHIP 25 50
+CHIP 25 25
 SOFTMODULE 8
 b0 7 4
 b1 7 3
 b2 4 7
-b3 4 3
+b3 4 10
 b4 2 2
 b5 8 3
 b6 5 3

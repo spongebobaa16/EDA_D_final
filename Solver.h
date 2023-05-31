@@ -37,7 +37,7 @@ public:
     // vector<Contour_vertical>    Contour_V;      // maintain contour to insert block efficiently
     
     
-    // DEBUG FUNCTIONS
+    // DEBUG FUNCTIONS // for w and l given.
     void readFile_givenWL(const char*);         // ONLY FOR DEBUGGING, GIVEN SOFT BLOCKS' WIDTH AND HEIGHT
     void printModules();
     void printLocations();

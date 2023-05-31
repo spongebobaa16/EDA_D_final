@@ -151,7 +151,7 @@ void Solver::placeBlock(Node* node, int type){
     placeBlock(node->right, 2);
 }
 
-int Solver::findYandUpdateContour_H(int index, int from_x, int to_x){
+int Solver::findYandUpdateContour_H(int index, int from_x, int to_x){ // not sure all correct??
     cout << "\nindex: " << index << " from_x: " << from_x << " to_x: " << to_x << endl;
     int max_height = 0;
     int insert_place = 0;

@@ -29,8 +29,13 @@ public:
     // insert node(index) to be node(parent)'s parent_left child. (if parent_left: true -> left.   else -> right)
     // original child become new inserted node's child_left child. (if child_left: true -> left.   else -> right)
 
-    // Node*   search(int index);    // == Tree_vec[index]                    
+    // Node*   search(int index);    // == Tree_vec[index]        
+    
+    // for SA
+    void    rotate(int index);
+    void    remove(int index, bool child_left);
     void    swap(int index1, int index2);
+
     void    destroy_tree();   
 
 
