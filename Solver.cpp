@@ -250,6 +250,28 @@ int Solver::findYandUpdateContour_H(int index, int from_x, int to_x){ // not sur
 */
 }
 
+int Solver::calculate_totalcost(){
+    int A=0; // area of the current floorplan
+    int HPWL=0;
+    int prev_til_x=0;
+
+    int l=Contour_H.size();
+    for(int i=0; i<l;i++){
+        //cout<<Contour_H[i].til_x<<" "<<Contour_H[i].height<<endl;
+        A+=(Contour_H[i].til_x-prev_til_x)*Contour_H[i].height;
+        prev_til_x=Contour_H[i].til_x;
+    }
+    
+    l=Connections.size();
+    for (int i=0; i<l; i++){
+        HPWL+=(abs(Modules[Connections[i].index_name1]->location.x-Modules[Connections[i].index_name2]->location.x)\
+        +abs(Modules[Connections[i].index_name1]->location.y-Modules[Connections[i].index_name2]->location.y))\
+        *Connections[i].pin_Number;
+    }
+    return A; //////////////////////////////////////////////
+
+}
+
 void Solver::printModules(){
     for (int i=0; i<Modules.size(); i++){
         cout << " index: " << Modules[i]->index << " name: " << Modules[i]->name;
