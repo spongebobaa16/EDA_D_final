@@ -24,7 +24,8 @@ public:
     B_Tree():root(0) {}
     ~B_Tree(){}
 
-    void    create_tree(const Solver& s);  // initially create Node* for all blocks and push into Tree_vec.
+    void    create_tree(const Solver& s);
+    //void    create_tree(const Solver& s);  // initially create Node* for all blocks and push into Tree_vec.
     void    insert(int index, int parent, bool parent_left, bool child_left); 
     // insert node(index) to be node(parent)'s parent_left child. (if parent_left: true -> left.   else -> right)
     // original child become new inserted node's child_left child. (if child_left: true -> left.   else -> right)

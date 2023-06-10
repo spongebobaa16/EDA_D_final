@@ -17,6 +17,6 @@ int main(int argc, char *argv[]){
     // t.printTreePreorder(t.root);
     s.floorplan(t);
     //s.printLocations();
-    cout<<"Area: "<<s.calculate_totalcost()<<endl;
+    cout<<"cost: "<<s.calculate_totalcost()<<endl;
     s.outputFloorPlan();
 }

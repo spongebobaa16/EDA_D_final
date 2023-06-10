@@ -1,6 +1,7 @@
 #include "B_tree.h"
 #include "Solver.h"
 
+
 void B_Tree::create_tree(const Solver& s){
     for(int i=0; i<s.Modules.size(); i++){
         Node* newNode = new Node(i);

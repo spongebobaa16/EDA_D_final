@@ -270,6 +270,8 @@ double Solver::calculate_totalcost(){
         -(Modules[Connections[i].index_name2]->location.y+double(Modules[Connections[i].index_name2]->height)/2)))
         *Connections[i].pin_Number;
     }
+    //cout<<"A: "<<A<<endl;
+    //cout<<"HPWL: "<<HPWL<<endl;
 
     return A+HPWL; //////////////////////////////////////////////
 
