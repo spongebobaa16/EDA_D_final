@@ -284,6 +284,8 @@ double Solver::calculate_totalcost()
         A += (Contour_H[i].til_x - prev_til_x) * Contour_H[i].height;
         prev_til_x = Contour_H[i].til_x;
     }
+    //cout<<"A: "<<A<<endl;
+    //cout<<"HPWL: "<<HPWL<<endl;
 
     l = Connections.size();
     for (int i = 0; i < l; i++)
