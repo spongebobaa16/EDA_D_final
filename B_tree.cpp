@@ -19,11 +19,12 @@ void B_Tree::create_tree(const Solver &s)
     insert(5, 2, true, false);
     insert(6, 2, false, false);
     insert(7, 6, true, false);
-    printTree();
-    // swap(0, 2);
+    rotate(2);
     // printTree();
-    move(0, 3, 1);
-    printTree();
+    // // swap(0, 2);
+    // // printTree();
+    // move(0, 3, 1);
+    // printTree();
     // insert(1, 0, false, false);
     // insert(2, 1, true, false);
     // insert(3, 2, true, false);
@@ -73,9 +74,9 @@ void B_Tree::insert(int index, int parent, bool parent_left, bool child_left)
     }
 }
 
-void B_Tree::rotate(int index)
-{
-}
+// void B_Tree::rotate(int index)
+// {
+// }
 void B_Tree::remove(int index, bool child_left) // if child_left == True -> swap with left child
 {
     Node *_to_remove = Tree_vec[index];

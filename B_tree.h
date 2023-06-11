@@ -11,14 +11,17 @@ class Node
 {
 public:
     Node() {}
-    Node(int _index) : parent(0), left(0), right(0), index(_index) {}
+    Node(int _index) : parent(0), left(0), right(0), index(_index), _isRotated(0) {}
     ~Node() {}
     bool isLeftChild() { return (parent->left == this); }
     bool isChildOf(Node *_p) { return (this == _p->left || this == _p->right); }
+    void rotate() { _isRotated = !_isRotated; }
+    bool isRotated() { return _isRotated; }
     Node *parent;
     Node *left;
     Node *right;
     int index;
+    bool _isRotated;
 };
 
 class B_Tree
@@ -29,14 +32,14 @@ public:
 
     void create_tree(const Solver &s); // initially create Node* for all blocks and push into Tree_vec.
     void insert(int index, int parent, bool parent_left, bool child_left);
+    void remove(int index, bool child_left);
     // insert node(index) to be node(parent)'s parent_left child. (if parent_left: true -> left.   else -> right)
     // original child become new inserted node's child_left child. (if child_left: true -> left.   else -> right)
 
     // Node*   search(int index);    // == Tree_vec[index]
 
     // for SA
-    void rotate(int index);
-    void remove(int index, bool child_left);
+    void rotate(int index) { Tree_vec[index]->rotate(); };
     void swap(int index1, int index2);
     void move(int index1, int index2, bool child_left); // move index1 to index2's left(right) child, depends on child_left == 1(0)
 
