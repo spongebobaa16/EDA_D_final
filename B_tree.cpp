@@ -20,7 +20,7 @@ void B_Tree::create_tree(const Solver &s)
     insert(6, 2, false, false);
     insert(7, 6, true, false);
     printTree();
-    swap(3, 6);
+    swap(0, 2);
     printTree();
     // insert(1, 0, false, false);
     // insert(2, 1, true, false);
@@ -109,29 +109,95 @@ void B_Tree::remove(int index, bool child_left) // if child_left == True -> dele
     Tree_vec[index] = 0;
     delete _to_remove;
 }
-void B_Tree::swap(int index1, int index2)
-{
+
+/*
+three cases:
+    1.  no relationship
+    2. one node is root
+    3. there is parent/child relationship between node1 & node2 -> make node1 always the parent
+*/
+
+void B_Tree::swap(int index1, int index2) // deal with normal case first (check) , next root (check) , next nodes with parent/child relationship
+{                                         // if node1 node2's number of children is not the same ? (check)
     Node *node1 = Tree_vec[index1], *node2 = Tree_vec[index2];
+    bool PCrelationship = 0;               // if node1 & node2 have parent-child relationship
+    bool node2Left = node2->isLeftChild(); // see if node2 is left child or not
+    Node *root_original = root;
     if (node1 == root || node2 == root)
         root = node1 == root ? node2 : node1;
 
     // swap parent
-    Node *tmp = node1->parent;
-    if (!node1->isChildOf(node2) && !node2->isChildOf(node1)) // if not parent-child relationship
+
+    if (node1->isChildOf(node2) || node2->isChildOf(node1))
     {
-        bool pos1 = node1->isLeftChild(), pos2 = node2->isLeftChild(); // pos1 denote if node1 is the leftchild of its parent
-        node1->parent = node2->parent;
-        node2->parent = tmp; // parent-><child> have to update as well !!!
+        PCrelationship = 1;
+        if (node1->isChildOf(node2)) // make node1 always the parent
+        {
+            Node *tmp1 = node1;
+            node1 = node2;
+            node2 = tmp1;
+        }
     }
+    Node *tmp = node1->parent;
+
+    // parent_childi see nodei is its parent's left or right child
+    Node *&parent_child1 = (node1 != root_original) ? (node1->isLeftChild() ? node1->parent->left : node1->parent->right) : dummy;
+    Node *&parent_child2 = (node2 != root_original) ? (node2->isLeftChild() ? node2->parent->left : node2->parent->right) : dummy;
+
+    if (!PCrelationship)
+    {
+        node1->parent = node2->parent;
+        node2->parent = tmp;
+        parent_child1 = node2; // original node1's parent's child should be update to node2
+        parent_child2 = node1; // original node2's parent's child should be update to node1
+    }
+    else
+    {
+        node1->parent = node2;
+        node2->parent = tmp;
+        parent_child1 = node2; // original node1's child should be update to node2
+        // (node2Left ? node2->left : node2->right) = node1; // original node2's child should be update to node1
+    }
+
     // swap left child
-    tmp = node1->left;
-    node1->left = node2->left;
-    node2->left = tmp;
+    if (!PCrelationship || !node2Left)
+    {
+        tmp = node1->left;
+        node1->left = node2->left;
+        node2->left = tmp;
+        if (node1->left != 0)
+            node1->left->parent = node1; // node1's left child's parent should = node1
+        if (node2->left != 0)
+            node2->left->parent = node2; // node2's left child's parent should = node2
+    }
+    else
+    {
+        node1->left = node2->left;
+        node2->left = node1;
+        if (node1->left != 0)
+            node1->left->parent = node1;
+        // node1->parent is already node2
+    }
 
     // swap right child
-    tmp = node1->right;
-    node1->right = node2->right;
-    node2->right = tmp;
+    if (!PCrelationship || node2Left)
+    {
+        tmp = node1->right;
+        node1->right = node2->right;
+        node2->right = tmp;
+        if (node1->right != 0)
+            node1->right->parent = node1; // node1's left child's parent should = node1
+        if (node2->right != 0)
+            node2->right->parent = node2; // node2's left child's parent should = node2
+    }
+    else
+    {
+        node1->right = node2->right;
+        node2->right = node1;
+        if (node1->right != 0)
+            node1->right->parent = node1;
+        // node1->parent is already node2
+    }
 }
 
 void B_Tree::printTreePreorder(Node *node)

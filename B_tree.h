@@ -24,7 +24,7 @@ public:
 class B_Tree
 {
 public:
-    B_Tree() : root(0) {}
+    B_Tree() : root(0), dummy(new Node(-1)) {}
     ~B_Tree() {}
 
     void create_tree(const Solver &s); // initially create Node* for all blocks and push into Tree_vec.
@@ -50,7 +50,7 @@ public:
         printTree("", root, false, true);
     }
 
-    Node *root;
+    Node *root, *dummy;
     vector<Node *> Tree_vec;
 };
 
