@@ -20,7 +20,9 @@ void B_Tree::create_tree(const Solver &s)
     insert(6, 2, false, false);
     insert(7, 6, true, false);
     printTree();
-    swap(0, 2);
+    // swap(0, 2);
+    // printTree();
+    remove(2, 0);
     printTree();
     // insert(1, 0, false, false);
     // insert(2, 1, true, false);
@@ -74,7 +76,7 @@ void B_Tree::insert(int index, int parent, bool parent_left, bool child_left)
 void B_Tree::rotate(int index)
 {
 }
-void B_Tree::remove(int index, bool child_left) // if child_left == True -> delete left child
+void B_Tree::remove(int index, bool child_left) // if child_left == True -> swap with left child
 {
     Node *_to_remove = Tree_vec[index];
     if (_to_remove == 0)
@@ -97,14 +99,14 @@ void B_Tree::remove(int index, bool child_left) // if child_left == True -> dele
     }
     else // case 3 : delete node with two children
     {
-        Node *child_to_replace = child_left ? _to_remove->left : _to_remove->right;
-        if (child_left)
+        while (_to_remove->left != 0 || _to_remove->right != 0)
         {
+            Node *child_to_swap = child_left ? _to_remove->left : _to_remove->right;
+            if (child_to_swap == 0)
+                child_to_swap = !child_left ? _to_remove->left : _to_remove->right;
+            swap(_to_remove->index, child_to_swap->index);
         }
-        else
-        {
-            _to_remove->left->parent = child_to_replace;
-        }
+        (_to_remove->isLeftChild() ? _to_remove->parent->left : _to_remove->parent->right) = 0;
     }
     Tree_vec[index] = 0;
     delete _to_remove;
