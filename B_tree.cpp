@@ -19,11 +19,10 @@ void B_Tree::create_tree(const Solver &s)
     insert(5, 2, true, false);
     insert(6, 2, false, false);
     insert(7, 6, true, false);
-    rotate(2);
     // printTree();
-    // // swap(0, 2);
-    // // printTree();
-    // move(0, 3, 1);
+    // swap(0, 2);
+    // printTree();
+    // move(0, 3, 1, 1);
     // printTree();
     // insert(1, 0, false, false);
     // insert(2, 1, true, false);
@@ -203,11 +202,11 @@ void B_Tree::swap(int index1, int index2) // deal with normal case first (check)
     }
 }
 
-void B_Tree::move(int index1, int index2, bool child_left)
+void B_Tree::move(int index1, int index2, bool parent_left, bool child_left)
 {
     remove(index1, 1);
     Tree_vec[index1] = new Node(index1);
-    insert(index1, index2, child_left, 1);
+    insert(index1, index2, parent_left, child_left);
 }
 
 void B_Tree::printTreePreorder(Node *node)
