@@ -38,6 +38,7 @@ public:
     void rotate(int index);
     void remove(int index, bool child_left);
     void swap(int index1, int index2);
+    void move(int index1, int index2, bool child_left); // move index1 to index2's left(right) child, depends on child_left == 1(0)
 
     void destroy_tree();
 
