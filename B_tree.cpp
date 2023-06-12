@@ -19,9 +19,7 @@ void B_Tree::create_tree(const Solver &s)
     insert(5, 2, true, false);
     insert(6, 2, false, false);
     insert(7, 6, true, false);
-    // printTree();
-    // swap(0, 2);
-    // printTree();
+
     // move(0, 3, 1, 1);
     // printTree();
     // insert(1, 0, false, false);
@@ -122,8 +120,10 @@ three cases:
 void B_Tree::swap(int index1, int index2) // deal with normal case first (check) , next root (check) , next nodes with parent/child relationship
 {                                         // if node1 node2's number of children is not the same ? (check)
     Node *node1 = Tree_vec[index1], *node2 = Tree_vec[index2];
-    bool PCrelationship = 0;               // if node1 & node2 have parent-child relationship
-    bool node2Left = node2->isLeftChild(); // see if node2 is left child or not
+    bool PCrelationship = 0; // if node1 & node2 have parent-child relationship
+    bool node2Left = 0;
+    if (node2->parent != 0)
+        node2Left = node2->isLeftChild(); // see if node2 is left child or not
     Node *root_original = root;
     if (node1 == root || node2 == root)
         root = node1 == root ? node2 : node1;
