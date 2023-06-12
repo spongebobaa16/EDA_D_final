@@ -66,23 +66,56 @@ def get_color(i=0):
 
     return (color, fontcolor)
 
+def get_upper_contour(corners):
+    # skip first corner since it's the leftmost & lowest corner
+    # tuple (left x coordinate, right y coordinate, absolute height)
+    min = corners[1][2] # lowest of the top contour -> i
+    for i in range(1, len(corners), 2):
+        print(1)
+        
 
 def main():
     # read file
     _src = input("Enter the file name you want to visualize : ")
-    isFirstLine = True
+    modules_corner = [] # first element of each module : name of the module; the rest of the elements : i-th corner
     positions = []
     bounding_box = []
     with open(_src, 'r') as f:
-        for line in f:
-            tokens = line.split()
-            if isFirstLine:
-                bounding_box = [float(i) for i in tokens]
-            else:
-                positions.append(
-                    {"name": tokens[0], "x": float(tokens[1]), "y": float(tokens[2]), "width": float(tokens[3]), "height": float(tokens[4])})
-            isFirstLine = False
-    visualize(positions, bounding_box)
+        # read chip width & height
+        tokens = f.readline().split()
+        bounding_box = [float(i) for i in tokens]
+        # discard the second line
+        f.readline()
+        tokens = f.readline().split()   # tokens[1] denotes the number of soft blocks
+        for i in range(int(tokens[1])):
+            tokens_i = f.readline().split() # tokens_i[1] denotes the number of corners in module i
+            corners = [tokens_i[0]]
+            for j in range(int(tokens_i[1])):
+                tokens_i = f.readline().split()
+                corners.append([float(tokens_i[0]), float(tokens_i[1])])
+            modules_corner.append(corners)  
+        # slice the module into a set of rectangle
+        for module in modules_corner:
+            module[1:] = sorted(module[1:], key = lambda i : i[0])
+            prev_x = module[1][0]
+            veriticalLine = [1] # record the break point of each veritcal line
+            for i in range(2, len(module[1:]) + 1):
+                if module[i][0] != prev_x :
+                    prev_x = module[i][0]
+                    veriticalLine.append(i)
+                # for j in veriticalLine[1:]:
+                    
+            print(veriticalLine)
+            print(module)
+    #     for line in f:
+    #         tokens = line.split()
+    #         if isFirstLine:
+    #             bounding_box = [float(i) for i in tokens]
+    #         else:
+    #             positions.append(
+    #                 {"name": tokens[0], "x": float(tokens[1]), "y": float(tokens[2]), "width": float(tokens[3]), "height": float(tokens[4])})
+    #         isFirstLine = False
+    # visualize(positions, bounding_box)
     # print(bounding_box)
     # print(positions[0]["name"])
 

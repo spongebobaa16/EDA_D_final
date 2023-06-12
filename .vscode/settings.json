@@ -46,6 +46,12 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "__hash_table": "cpp",
+        "__tuple": "cpp",
+        "chrono": "cpp",
+        "filesystem": "cpp",
+        "ratio": "cpp",
+        "variant": "cpp"
     }
 }
