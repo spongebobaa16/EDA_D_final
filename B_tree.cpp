@@ -1,5 +1,6 @@
 #include "B_tree.h"
 #include "Solver.h"
+#include "util.h"
 
 void B_Tree::create_tree(const Solver &s)
 {
@@ -12,15 +13,20 @@ void B_Tree::create_tree(const Solver &s)
     // Manually initial B_Tree below, for debugging
 
     root = Tree_vec[0];
-    for(int i=1; i< s.Modules.size(); i++){
-        if(i%2 == 1){
-            insert(i, (i-1)/2, true, false);
+    for (int i = 1; i < s.Modules.size(); i++)
+    {
+        if (i % 2 == 1)
+        {
+            insert(i, (i - 1) / 2, true, false);
         }
-        else{
-            insert(i, (i-1)/2, false, false);
+        else
+        {
+            insert(i, (i - 1) / 2, false, false);
         }
     }
     printTree();
+    // remove(6, 0);
+    // printTree();
     // ─────0
     //     L├────1
     //      │   L├────3
@@ -31,7 +37,6 @@ void B_Tree::create_tree(const Solver &s)
     //     R└───2
     //         L├────5
     //         R└───6
-
 }
 
 void B_Tree::insert(int index, int parent, bool parent_left, bool child_left)
@@ -111,7 +116,14 @@ three cases:
 void B_Tree::swap(int index1, int index2) // deal with normal case first (check) , next root (check) , next nodes with parent/child relationship
 {                                         // if node1 node2's number of children is not the same ? (check)
     Node *node1 = Tree_vec[index1], *node2 = Tree_vec[index2];
-    bool PCrelationship = 0; // if node1 & node2 have parent-child relationship
+    if (node1->depth() > node2->depth()) // make node1 always the elder
+    {
+        Node *tmp1 = node1;
+        node1 = node2;
+        node2 = tmp1;
+    }
+
+    bool PCrelationship = node1->isChildOf(node2) || node2->isChildOf(node1); // if node1 & node2 have parent-child relationship
     bool node2Left = 0;
     if (node2->parent != 0)
         node2Left = node2->isLeftChild(); // see if node2 is left child or not
@@ -121,16 +133,16 @@ void B_Tree::swap(int index1, int index2) // deal with normal case first (check)
 
     // swap parent
 
-    if (node1->isChildOf(node2) || node2->isChildOf(node1))
-    {
-        PCrelationship = 1;
-        if (node1->isChildOf(node2)) // make node1 always the parent
-        {
-            Node *tmp1 = node1;
-            node1 = node2;
-            node2 = tmp1;
-        }
-    }
+    // if (node1->isChildOf(node2) || node2->isChildOf(node1))
+    // {
+    //     PCrelationship = 1;
+    //     if (node1->isChildOf(node2)) // make node1 always the parent
+    //     {
+    //         Node *tmp1 = node1;
+    //         node1 = node2;
+    //         node2 = tmp1;
+    //     }
+    // }
     Node *tmp = node1->parent;
 
     // parent_childi see nodei is its parent's left or right child

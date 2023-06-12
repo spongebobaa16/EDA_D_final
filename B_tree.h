@@ -16,8 +16,19 @@ public:
     bool isLeftChild() { return (parent->left == this); }
     bool isChildOf(Node *_p) { return (this == _p->left || this == _p->right); }
     void rotate() { _isRotated = !_isRotated; }
-    void changeWH() {WHtype++;}
+    void changeWH() { WHtype++; }
     bool isRotated() { return _isRotated; }
+    size_t depth() // depth are count from root(0)
+    {
+        size_t _depth = 0;
+        Node *it = this;
+        while (it->parent != 0)
+        {
+            ++_depth;
+            it = it->parent;
+        }
+        return _depth;
+    }
     Node *parent;
     Node *left;
     Node *right;
@@ -42,7 +53,7 @@ public:
 
     // for SA
     void rotate(int index) { Tree_vec[index]->rotate(); };
-    void changeWH(int index) {Tree_vec[index]->changeWH();} // call this will render a new width and height(if existed)
+    void changeWH(int index) { Tree_vec[index]->changeWH(); } // call this will render a new width and height(if existed)
     void swap(int index1, int index2);
     void move(int index1, int index2, bool parent_left, bool child_left); // move index1 to index2's left(right) child, depends on child_left == 1(0)
 

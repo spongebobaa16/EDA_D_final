@@ -1,0 +1,16 @@
+<CHIP width> <CHIP height> 
+HPWL <wirelength>
+SOFTMODULE <number of modules>
+soft_module_name1 number_of_corners
+x_coord_of_1st_corner y_coord_of_1st_corner 
+x_coord_of_2nd_corner y_coord_of_2nd_corner
+x_coord_of_3rd_corner y_coord_of_3rd_corner
+...
+x_coord_of_last_corner y_coord_of_last_corner 
+soft_module_name2 number_of_corners 
+x_coord_of_1st_corner y_coord_of_1st_corner 
+x_coord_of_2nd_corner y_coord_of_2nd_corner 
+x_coord_of_3rd_corner y_coord_of_3rd_corner 
+...
+x_coord_of_last_corner y_coord_of_last_corner 
+...
