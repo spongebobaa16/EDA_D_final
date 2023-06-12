@@ -282,10 +282,10 @@ int Solver::findYandUpdateContour_H(int index, int from_x, int to_x)
     */
 }
 
-double Solver::calculate_totalcost()
+float Solver::calculate_totalcost()
 {
-    double A = 0; // area of the current floorplan
-    double HPWL = 0;
+    float A = 0; // area of the current floorplan
+    float HPWL = 0;
     int prev_til_x = 0;
 
     int l = Contour_H.size();

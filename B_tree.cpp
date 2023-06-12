@@ -1,6 +1,13 @@
 #include "B_tree.h"
 #include "Solver.h"
 #include "util.h"
+#define N 10
+#define P 0.99
+#define K 10
+#define epsilon 0.001
+#define ratio     0.85
+#define lambdatf  0.005
+
 
 void B_Tree::create_tree(const Solver &s)
 {
@@ -211,6 +218,121 @@ void B_Tree::move(int index1, int index2, bool parent_left, bool child_left)
     Tree_vec[index1] = new Node(index1);
     insert(index1, index2, parent_left, child_left);
 }
+
+void B_Tree::SA(Solver & s){
+    vector<Node *> best=Tree_vec;
+    vector<Node *> temp_best=Tree_vec;
+    
+    s.floorplan(*this);
+    float temp_cost=s.calculate_totalcost();
+    float best_cost=temp_cost;
+    s.Contour_H.clear();
+    float new_cost=0, delta_c;
+
+    const int n=K*s.Modules.size();// total number of uphill moves
+    float T0=initialTemp(s); 
+    float T=T0;
+    float nmoves=0, uphill=0, reject=0;
+
+    while(reject/nmoves<=0.95 && T>=epsilon){
+        while(uphill<n && nmoves<=2*n){
+            new_cost=perturb(s);
+            delta_c=new_cost-temp_cost;
+
+            if(delta_c<=0) //down-hill move
+                temp_best=Tree_vec;
+            else{ //uphill move
+                if(accept(delta_c, T)){ //decide if we should accept the new tree
+                    temp_best=Tree_vec; 
+                    uphill++;
+                }
+                else
+                    reject++;
+            }
+
+            if(new_cost<best_cost)
+                best=Tree_vec; 
+
+            nmoves++;
+        }
+        T=T<lambdatf*T0?0.1*T:ratio*T;
+    }
+
+    Tree_vec=best;
+}
+
+bool B_Tree::accept(int delta_c, float T){
+    float prob=exp(-delta_c/T);
+    float r=(float) rand()/(RAND_MAX + 1.0);;
+    if(r < prob){
+        return true; //accept
+    } 
+    else{
+        return false;
+    }
+}
+
+float B_Tree::perturb(Solver & s){
+    int op=rand()%3+1;
+    if(op==1){
+        int m1=rand()%(s.Modules.size());
+        cout<<"op1: rotate "<<m1<<endl;
+        //printTree();
+        rotate(m1);
+        //rotate(rand()%(s.Modules.size()));
+    }
+    else if(op==2){
+        bool parent_left=(rand()%2==1)?true:false;
+        bool child_left=(rand()%2==1)?true:false;
+        int m1=rand()%(s.Modules.size());
+        int m2;
+        do{
+            m2=rand()%(s.Modules.size());
+        }while(m1==m2);
+
+        cout<<"op2: move "<<m1<<" to "<<m2<<endl;
+        //printTree();
+        move(m1, m2, parent_left, child_left);
+    }
+    else if(op==3){            
+        int m1=rand()%(s.Modules.size());
+        int m2;
+        do{
+            m2=rand()%(s.Modules.size());
+        }while(m1==m2);
+        cout<<"op3: swap "<<m1<<" and "<<m2<<endl;
+        //printTree();
+        swap(m1,m2);
+    }
+    s.floorplan(*this);
+    float cost=s.calculate_totalcost();
+    s.Contour_H.clear();
+    return cost;
+}
+
+float B_Tree::initialTemp(Solver & s){
+    float uphill_cost=0;
+    float prev_cost=perturb(s);
+    int uphill_times=0; //counting number of uphill moves
+
+    for(int i=1; i<N; ++i){
+        float cost=perturb(s);
+        if(cost>prev_cost){
+            uphill_cost+=(cost-prev_cost);
+            uphill_times++;
+            cout<<"UPHILL"<<endl;
+        }
+        prev_cost=cost;
+        printTree();
+    }
+
+    float c_avg=uphill_cost/uphill_times; // calculates average difference of uphill moves
+    float T0=-c_avg/log(P); // calculates initial temperature based on this formula, P being the initial probability of uphill moves
+    cout<<"initial temp: "<<T0<<endl;
+    return T0;
+}
+
+
 
 void B_Tree::printTreePreorder(Node *node)
 { // for debug
