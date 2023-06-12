@@ -136,8 +136,8 @@ def getPosition(module_new, verticalLine, name):
     
 def main(): 
     # read file
-    #_src = input("Enter the file name you want to visualize : ")
-    _src = "floorplan.txt"
+    _src = input("Enter the file name you want to visualize : ")
+    # _src = "floorplan.txt"
 
     modules_corner = [] # first element of each module : name of the module; the rest of the elements : i-th corner
     positions = []
