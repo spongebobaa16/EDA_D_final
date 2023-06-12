@@ -69,7 +69,7 @@ def get_color(i=0):
 
 def main():
     # read file
-    _src = input("Enter the file name you want to visualize : ")
+    _src = "floorplan.txt"
     isFirstLine = True
     positions = []
     bounding_box = []
