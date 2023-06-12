@@ -25,7 +25,7 @@ public:
     // Width_Height    calculate_w_l(int area);            // calculate feasible width for area
     void            floorplan(B_Tree t);                // calculate floorplan with given B_Tree and Modules, change each Module's location property
     void            placeBlock(Node* node, int type);   // floorplan(B_Tree t) will recursively call placeBlock with preorder, type: 0->root, 1->left, 2->right
-    double          calculate_totalcost();              // calculate floorplan's total cost     
+    float          calculate_totalcost();              // calculate floorplan's total cost     
     int             findYandUpdateContour_H(int index, int from_x, int to_x);          // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
 
     int                         chip_width;     // input info
