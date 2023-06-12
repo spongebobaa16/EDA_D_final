@@ -31,7 +31,8 @@ void B_Tree::create_tree(const Solver &s)
             insert(i, (i - 1) / 2, false, false);
         }
     }
-    printTree();
+    //printTree();
+
     // remove(6, 0);
     // printTree();
     // ─────0
@@ -232,38 +233,58 @@ void B_Tree::SA(Solver & s){
     const int n=K*s.Modules.size();// total number of uphill moves
     float T0=initialTemp(s); 
     float T=T0;
-    float nmoves=0, uphill=0, reject=0;
+    float nmoves=0, uphill=0, reject=0, reject_ratio;
 
-    while(reject/nmoves<=0.95 && T>=epsilon){
+    cout<<"where????"<<endl;
+    //cout<<"reject/nmoves: "<<reject/nmoves<<endl;
+    //cout<<"T: "<<T<<endl;
+    do{
         while(uphill<n && nmoves<=2*n){
             new_cost=perturb(s);
             delta_c=new_cost-temp_cost;
 
-            if(delta_c<=0) //down-hill move
+            if(delta_c<=0){ //down-hill move
                 temp_best=Tree_vec;
+                temp_cost=new_cost;
+                cout<<"DOWN HILLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"<<endl;
+            }
             else{ //uphill move
                 if(accept(delta_c, T)){ //decide if we should accept the new tree
+                    cout<<"UPHILL ACCEPTEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"<<endl;
                     temp_best=Tree_vec; 
+                    temp_cost=new_cost;
                     uphill++;
                 }
-                else
+                else{
                     reject++;
+                    cout<<"REJECTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"<<endl;
+                }
             }
 
-            if(new_cost<best_cost)
+            if(new_cost<best_cost){
                 best=Tree_vec; 
-
+                best_cost=new_cost;
+            }
+            cout<<"best cost: "<<best_cost<<endl;
             nmoves++;
         }
+        
+        reject_ratio=reject/nmoves;
+        nmoves=0;
+        uphill=0;
         T=T<lambdatf*T0?0.1*T:ratio*T;
-    }
-
+    }while(reject_ratio<=0.95 && T>=epsilon);
+    cout<<"reject: "<<reject<<endl;
+    cout<<"nmoves: "<<nmoves<<endl;
+    
     Tree_vec=best;
 }
 
 bool B_Tree::accept(int delta_c, float T){
     float prob=exp(-delta_c/T);
-    float r=(float) rand()/(RAND_MAX + 1.0);;
+    cout<<"prob: "<<prob<<endl;
+    double r=((double)rand()/(RAND_MAX)); 
+    cout<<"r: "<<r<<endl;
     if(r < prob){
         return true; //accept
     } 
@@ -277,7 +298,6 @@ float B_Tree::perturb(Solver & s){
     if(op==1){
         int m1=rand()%(s.Modules.size());
         cout<<"op1: rotate "<<m1<<endl;
-        //printTree();
         rotate(m1);
         //rotate(rand()%(s.Modules.size()));
     }
@@ -291,7 +311,6 @@ float B_Tree::perturb(Solver & s){
         }while(m1==m2);
 
         cout<<"op2: move "<<m1<<" to "<<m2<<endl;
-        //printTree();
         move(m1, m2, parent_left, child_left);
     }
     else if(op==3){            
@@ -301,12 +320,13 @@ float B_Tree::perturb(Solver & s){
             m2=rand()%(s.Modules.size());
         }while(m1==m2);
         cout<<"op3: swap "<<m1<<" and "<<m2<<endl;
-        //printTree();
         swap(m1,m2);
     }
     s.floorplan(*this);
     float cost=s.calculate_totalcost();
     s.Contour_H.clear();
+
+    printTree();
     return cost;
 }
 
@@ -320,10 +340,10 @@ float B_Tree::initialTemp(Solver & s){
         if(cost>prev_cost){
             uphill_cost+=(cost-prev_cost);
             uphill_times++;
-            cout<<"UPHILL"<<endl;
+            //cout<<"UPHILL"<<endl;
         }
         prev_cost=cost;
-        printTree();
+        //printTree();
     }
 
     float c_avg=uphill_cost/uphill_times; // calculates average difference of uphill moves
