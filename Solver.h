@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include <cmath>
+#include <iomanip>
 
 
 
@@ -21,7 +22,7 @@ public:
     ~Solver(){}
     
     void            readFile(const char*);
-    Width_Height    calculate_w_l(int area);            // calculate feasible width for area
+    // Width_Height    calculate_w_l(int area);            // calculate feasible width for area
     void            floorplan(B_Tree t);                // calculate floorplan with given B_Tree and Modules, change each Module's location property
     void            placeBlock(Node* node, int type);   // floorplan(B_Tree t) will recursively call placeBlock with preorder, type: 0->root, 1->left, 2->right
     double          calculate_totalcost();              // calculate floorplan's total cost     

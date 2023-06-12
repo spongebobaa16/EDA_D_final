@@ -21,9 +21,9 @@ void Solver::readFile(const char *filename)
         newModule->index = i;
         newModule->name = moduleName;
         newModule->area = area;
-        Width_Height w_l = calculate_w_l(area);
-        newModule->width = w_l.width;
-        newModule->height = w_l.height;
+        newModule->calculate_w_l(area);
+        newModule->width = newModule->validWH[0].width;
+        newModule->height = newModule->validWH[0].height;
         newModule->fixed = false;
         Modules.push_back(newModule);
     }
@@ -114,17 +114,23 @@ void Solver::readFile_givenWL(const char *filename)
     Contour_H.push_back(initContour);
 }
 
-Width_Height Solver::calculate_w_l(int area)
-{
-    // int square_root = sqrt(area);
-    // if(float(area)/float(square_root*(square_root+1)) > 0.8){
-    //     Width_Height ans;
-    //     ans.height = square_root;
-    //     ans.width = square_root+1;
-
-    //     return ans;
-    // }
-}
+// Width_Height Solver::calculate_w_l(int area)
+// {
+//     float ratio[11] = {1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0};
+//     float testarea = 1.0;
+//     for(int i = 0; i < 100; i++){
+//         for(int j=0; j<11; j++){
+//             float w = sqrt(testarea/ratio[j]);
+//             if(float(testarea / ((int(w)+1)*(int(testarea/w)+1))) < 0.8){
+//                 cout << setprecision(5) << "testarea: " << testarea << "\tratio: " << ratio[j] << "\tw: " << int(w)+1 << "\th: " << int(testarea/w)+1;
+//                 cout << "\tarea: " << (int(w)+1)*(int(testarea/w)+1) << "\trratio: " << float(float(int(testarea/w)+1)/float(int(w)+1));
+//                 cout << "\taratio: " << float(testarea / ((int(w)+1)*(int(testarea/w)+1))) << endl;
+//             }
+//         }
+//         testarea = testarea + 1.0; 
+//         // cout << endl;
+//     }
+// }
 
 void Solver::floorplan(B_Tree t)
 {
@@ -135,6 +141,10 @@ void Solver::placeBlock(Node *node, int type)
 {
     if (node == NULL)
         return;
+    Modules[node->index]->changeWH(node->WHtype); 
+    // cout << "index:" << node->index  <<"\tWHtype: " << node->WHtype;
+    // cout << "\tw: " << Modules[node->index]->width << "\th: " << Modules[node->index]->height << endl;
+
     if (node->isRotated())
         Modules[node->index]->rotate();
     if (type == 0)
@@ -165,7 +175,7 @@ void Solver::placeBlock(Node *node, int type)
 
 int Solver::findYandUpdateContour_H(int index, int from_x, int to_x)
 { // not sure all correct??
-    cout << "\nindex: " << index << " from_x: " << from_x << " to_x: " << to_x << endl;
+    // cout << "\nindex: " << index << " from_x: " << from_x << " to_x: " << to_x << endl;
     int max_height = 0;
     int insert_place = 0;
     bool init = false;
@@ -177,7 +187,7 @@ int Solver::findYandUpdateContour_H(int index, int from_x, int to_x)
             init = true;
         }
     }
-    cout << "pre_max_height: " << max_height << endl;
+    // cout << "pre_max_height: " << max_height << endl;
     for (int i = Contour_H.size() - 1; i >= 0; i--)
     {
         if (Contour_H[i].til_x > from_x && Contour_H[i].til_x <= to_x)
@@ -199,14 +209,14 @@ int Solver::findYandUpdateContour_H(int index, int from_x, int to_x)
         if (to_x > Contour_H[i].til_x)
             insert_place++;
     }
-    cout << "insert_place: " << insert_place << " max_height: " << max_height << endl;
+    // cout << "insert_place: " << insert_place << " max_height: " << max_height << endl;
     Contour_horizontal a(to_x, Modules[index]->height + max_height);
     Contour_H.insert(Contour_H.begin() + insert_place, a);
 
-    for (int i = 0; i < Contour_H.size(); i++)
-    {
-        cout << " til_x: " << Contour_H[i].til_x << " height: " << Contour_H[i].height << endl;
-    }
+    // for (int i = 0; i < Contour_H.size(); i++)
+    // {
+    //     cout << " til_x: " << Contour_H[i].til_x << " height: " << Contour_H[i].height << endl;
+    // }
 
     return max_height;
     /*

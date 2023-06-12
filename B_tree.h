@@ -11,17 +11,19 @@ class Node
 {
 public:
     Node() {}
-    Node(int _index) : parent(0), left(0), right(0), index(_index), _isRotated(0) {}
+    Node(int _index) : parent(0), left(0), right(0), index(_index), _isRotated(0), WHtype(0) {}
     ~Node() {}
     bool isLeftChild() { return (parent->left == this); }
     bool isChildOf(Node *_p) { return (this == _p->left || this == _p->right); }
     void rotate() { _isRotated = !_isRotated; }
+    void changeWH() {WHtype++;}
     bool isRotated() { return _isRotated; }
     Node *parent;
     Node *left;
     Node *right;
     int index;
     bool _isRotated;
+    int WHtype; // keep adding one to choose different type of WL
 };
 
 class B_Tree
@@ -40,6 +42,7 @@ public:
 
     // for SA
     void rotate(int index) { Tree_vec[index]->rotate(); };
+    void changeWH(int index) {Tree_vec[index]->changeWH();} // call this will render a new width and height(if existed)
     void swap(int index1, int index2);
     void move(int index1, int index2, bool parent_left, bool child_left); // move index1 to index2's left(right) child, depends on child_left == 1(0)
 

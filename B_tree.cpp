@@ -12,35 +12,26 @@ void B_Tree::create_tree(const Solver &s)
     // Manually initial B_Tree below, for debugging
 
     root = Tree_vec[0];
-    insert(1, 0, true, false);
-    insert(2, 0, false, false);
-    insert(3, 1, false, false);
-    insert(4, 3, true, false);
-    insert(5, 2, true, false);
-    insert(6, 2, false, false);
-    insert(7, 6, true, false);
+    for(int i=1; i< s.Modules.size(); i++){
+        if(i%2 == 1){
+            insert(i, (i-1)/2, true, false);
+        }
+        else{
+            insert(i, (i-1)/2, false, false);
+        }
+    }
+    printTree();
+    // ─────0
+    //     L├────1
+    //      │   L├────3
+    //      │    │   L├────7
+    //      │    │   R└───8
+    //      │   R└───4
+    //      │       L├────9
+    //     R└───2
+    //         L├────5
+    //         R└───6
 
-    // move(0, 3, 1, 1);
-    // printTree();
-    // insert(1, 0, false, false);
-    // insert(2, 1, true, false);
-    // insert(3, 2, true, false);
-    // insert(4, 3, true, false);
-    // insert(5, 1, false, false);
-    // insert(6, 5, true, false);
-    // insert(7, 0, true, false);
-    // insert(8, 7, false, false);
-    // insert(9, 8, false, false);
-    // insert(10, 9, false, false);
-    // insert(11, 8, true, false);
-
-    // insert(1, 0, true, false);
-    // insert(2, 1, true, false);
-    // insert(3, 1, false, false);
-    // insert(4, 0, false, false);
-    // insert(5, 4, false, false);
-
-    // insert(1, 0, true, false);
 }
 
 void B_Tree::insert(int index, int parent, bool parent_left, bool child_left)
