@@ -1,0 +1,20 @@
+<CHIP width> <CHIP height> 
+HPWL <wirelength>
+SOFTMODULE <number of modules>
+# 把最左下角的corner放第一個（lower contour 那個）
+soft_module_name1 number_of_corners
+x_coord_of_1st_corner y_coord_of_1st_corner 
+x_coord_of_2nd_corner y_coord_of_2nd_corner
+x_coord_of_3rd_corner y_coord_of_3rd_corner
+...
+x_coord_of_last_corner y_coord_of_last_corner 
+soft_module_name2 number_of_corners 
+x_coord_of_1st_corner y_coord_of_1st_corner 
+x_coord_of_2nd_corner y_coord_of_2nd_corner 
+x_coord_of_3rd_corner y_coord_of_3rd_corner 
+...
+x_coord_of_last_corner y_coord_of_last_corner 
+...
+FIXEDMODULE number_of_fixed_modules
+fixed_module_name1 x_coord y_coord module_width module_height 
+fixed_module_name2 x_coord y_coord module_width module_height
