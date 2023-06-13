@@ -76,6 +76,7 @@ int main(int argc, char *argv[]){
     // cout<<"yayyyyy: "<<T0<<endl;
     // t.printTree();
     t.SA(s);
+    t.printTree();
     
     s.outputFloorPlan();
 }

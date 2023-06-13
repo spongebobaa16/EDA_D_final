@@ -253,9 +253,6 @@ void B_Tree::SA(Solver &s)
     float T = T0;
     float nmoves = 0, uphill = 0, reject = 0, reject_ratio;
 
-    cout << "where????" << endl;
-    // cout<<"reject/nmoves: "<<reject/nmoves<<endl;
-    // cout<<"T: "<<T<<endl;
     do
     {
         while (uphill < n && nmoves <= 2 * n)
@@ -301,8 +298,15 @@ void B_Tree::SA(Solver &s)
     } while (reject_ratio <= 0.95 && T >= epsilon);
     cout << "reject: " << reject << endl;
     cout << "nmoves: " << nmoves << endl;
-
+    
+    // for(auto i:best)
+    //     cout<<i->index<<endl;
+    
     Tree_vec = best;
+    // for(auto i:Tree_vec)
+    //     cout<<i->index<<endl;
+    // exit(0);
+    //printTree();
 }
 
 bool B_Tree::accept(int delta_c, float T)
