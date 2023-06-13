@@ -72,8 +72,9 @@ public:
 
     void copyTree(vector<Node *>& a, int size); //copy nodes in Tree_vec to a
     void returnTree(vector<Node *> a, int size); //return nodes in a to Tree_vec
+    bool prePlacedModule(Solver &s);
     void destroy_tree();
-
+    void exchangableNode(Solver &s, Node *_node, Node *_fixed, vector<Node *> &D, size_t _specificDirection = 0);
     // Debug
     void printTreePreorder(Node *node);
     void printTree(const string &prefix, Node *parent, bool isLeft, bool isRoot); // left subtree is on the top

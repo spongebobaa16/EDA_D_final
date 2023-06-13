@@ -1,6 +1,0 @@
-<CHIP width> <CHIP height> <number of modules>
-<name1, x1, y1, width1, height1>
-<name2, x2, y2, width2, height2>
-.
-.
-.

@@ -69,7 +69,8 @@ def get_color(i=0):
 
 def main():
     # read file
-    _src = "floorplan.txt"
+    _pre = input("1 for before, 0 for after : ")
+    _src = "floorplan.txt" if _pre == '0' else "floorplan_before.txt"
     isFirstLine = True
     positions = []
     bounding_box = []
@@ -79,10 +80,11 @@ def main():
             if isFirstLine:
                 bounding_box = [float(i) for i in tokens]
             else:
+                name = tokens[0][0] + str(int(tokens[0][1:]) - 1)
                 positions.append(
-                    {"name": tokens[0], "x": float(tokens[1]), "y": float(tokens[2]), "width": float(tokens[3]), "height": float(tokens[4])})
+                    {"name": name, "x": float(tokens[1]), "y": float(tokens[2]), "width": float(tokens[3]), "height": float(tokens[4])})
             isFirstLine = False
-    visualize(positions, bounding_box)
+    visualize(positions, bounding_box, "floorplan.png" if _pre == '0' else "floorplan_before.png")
     # print(bounding_box)
     # print(positions[0]["name"])
 

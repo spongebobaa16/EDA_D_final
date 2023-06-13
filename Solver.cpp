@@ -127,7 +127,7 @@ void Solver::readFile_givenWL(const char *filename)
 //                 cout << "\taratio: " << float(testarea / ((int(w)+1)*(int(testarea/w)+1))) << endl;
 //             }
 //         }
-//         testarea = testarea + 1.0; 
+//         testarea = testarea + 1.0;
 //         // cout << endl;
 //     }
 // }
@@ -141,13 +141,13 @@ void Solver::placeBlock(Node *node, int type)
 {
     if (node == NULL)
         return;
-    Modules[node->index]->changeWH(node->WHtype); 
+    Modules[node->index]->changeWH(node->WHtype);
     // cout << "index:" << node->index  <<"\tWHtype: " << node->WHtype;
     // cout << "\tw: " << Modules[node->index]->width << "\th: " << Modules[node->index]->height << endl;
 
     if (node->isRotated())
         Modules[node->index]->rotate();
-    if (type == 0)
+    if (type == 0) // if fixed block is root???
     {
         Coord root_loc(0, 0);
         Modules[node->index]->location = root_loc;
@@ -155,16 +155,34 @@ void Solver::placeBlock(Node *node, int type)
     }
     else if (type == 1)
     {
-        int from_x = Modules[node->parent->index]->location.x + Modules[node->parent->index]->width;
-        int to_x = from_x + Modules[node->index]->width;
+        int from_x = 0, to_x = 0;
+        if (Modules[node->index]->fixed && 0)
+        {
+            from_x = Modules[node->index]->fix_location.x;
+            to_x = from_x + Modules[node->index]->width;
+        }
+        else
+        {
+            from_x = Modules[node->parent->index]->location.x + Modules[node->parent->index]->width;
+            to_x = from_x + Modules[node->index]->width;
+        }
         int Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
         Coord loc(from_x, Yloc);
         Modules[node->index]->location = loc;
     }
     else if (type == 2)
     {
-        int from_x = Modules[node->parent->index]->location.x;
-        int to_x = from_x + Modules[node->index]->width;
+        int from_x = 0, to_x = 0;
+        if (Modules[node->index]->fixed && 0)
+        {
+            from_x = Modules[node->index]->fix_location.x;
+            to_x = from_x + Modules[node->index]->width;
+        }
+        else
+        {
+            from_x = Modules[node->parent->index]->location.x;
+            to_x = from_x + Modules[node->index]->width;
+        }
         int Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
         Coord loc(from_x, Yloc);
         Modules[node->index]->location = loc;
@@ -329,10 +347,13 @@ void Solver::printLocations()
         cout << " h: " << Modules[i]->height << endl;
     }
 }
-void Solver::outputFloorPlan()
+void Solver::outputFloorPlan(bool isPrePlaced)
 {
     ofstream fout;
-    fout.open("floorplan.txt");
+    if (isPrePlaced)
+        fout.open("floorplan.txt");
+    else
+        fout.open("floorplan_before.txt");
     fout << chip_width << " " << chip_height << " " << Modules.size() << endl;
     for (int i = 0; i < Modules.size(); i++)
     {
