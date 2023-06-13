@@ -65,7 +65,7 @@ void NPE::SimulatedAnnealing(vector<string>& s){
 
                 if(d>0) { // if new cost is more than old cost, allows uphill move
 
-                uphill++; // increments the number of uphill moves by 1
+                    uphill++; // increments the number of uphill moves by 1
 
 
                 }
@@ -74,7 +74,7 @@ void NPE::SimulatedAnnealing(vector<string>& s){
 
                 if(do_cost(s)<do_cost(best)) { // checks if cost of new topology is less than cost of best
 
-                best=s; // new topology assigned as best
+                    best=s; // new topology assigned as best
 
                 }
 

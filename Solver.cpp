@@ -285,7 +285,7 @@ int Solver::findYandUpdateContour_H(int index, int from_x, int to_x)
 float Solver::calculate_totalcost()
 {
     float A = 0; // area of the current floorplan
-    float HPWL = 0;
+    HPWL = 0;
     int prev_til_x = 0;
 
     int l = Contour_H.size();
@@ -296,13 +296,14 @@ float Solver::calculate_totalcost()
         prev_til_x = Contour_H[i].til_x;
     }
     // cout<<"A: "<<A<<endl;
-    // cout<<"HPWL: "<<HPWL<<endl;
+    
 
     l = Connections.size();
     for (int i = 0; i < l; i++)
     {
         HPWL += (abs((Modules[Connections[i].index_name1]->location.x + double(Modules[Connections[i].index_name1]->width) / 2) - (Modules[Connections[i].index_name2]->location.x + double(Modules[Connections[i].index_name2]->width) / 2)) + abs((Modules[Connections[i].index_name1]->location.y + double(Modules[Connections[i].index_name1]->height) / 2) - (Modules[Connections[i].index_name2]->location.y + double(Modules[Connections[i].index_name2]->height) / 2))) * Connections[i].pin_Number;
     }
+    // cout<<"HPWL: "<<HPWL<<endl;
 
     return A + HPWL; //////////////////////////////////////////////
 }

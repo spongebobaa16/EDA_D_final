@@ -30,6 +30,7 @@ public:
 
     int                         chip_width;     // input info
     int                         chip_height;    // input info
+    float                       HPWL; 
     unordered_map<string, int>  U_Name_Index;   // for all modules
     vector<Module*>             Modules;        // input info, for both soft and fixed modules
     vector<Node*>               Nodes;          // store every Node*'s info, for search convenience

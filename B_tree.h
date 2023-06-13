@@ -1,3 +1,4 @@
+#include "Coord.h"
 #ifndef B_TREE_H
 #define B_TREE_H
 #include <vector>
@@ -69,6 +70,8 @@ public:
     void SA(Solver &s);
     bool accept(int delta_c, float T);
 
+    void copyTree(vector<Node *>& a, int size); //copy nodes in Tree_vec to a
+    void returnTree(vector<Node *> a, int size); //return nodes in a to Tree_vec
     void destroy_tree();
 
     // Debug

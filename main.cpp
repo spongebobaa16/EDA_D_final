@@ -6,9 +6,7 @@
 #include "Module.h"
 #include "B_tree.h"
 
-#define N 10
-#define P 0.99
-//#define 
+
 using namespace std;
 
 float perturb(B_Tree & t,Solver & s){
@@ -74,9 +72,11 @@ int main(int argc, char *argv[]){
 
     // float T0=t.initialTemp(s);
     // cout<<"yayyyyy: "<<T0<<endl;
-    // t.printTree();
+
     t.SA(s);
     t.printTree();
-    
+    s.Contour_H.clear();
+    s.floorplan(t);
+
     s.outputFloorPlan();
 }
