@@ -68,7 +68,7 @@ public:
     float initialTemp(Solver &s);
     void SA(Solver &s);
     bool accept(int delta_c, float T);
-
+    void prePlacedModule(Solver &s);
     void destroy_tree();
 
     // Debug

@@ -240,8 +240,9 @@ void B_Tree::move(int index1, int index2, bool parent_left, bool child_left)
 void B_Tree::SA(Solver &s)
 {
     vector<Node *> best = Tree_vec;
+    // vector<Node *> best;
+    // best.assign(Tree_vec.begin(), Tree_vec.end());
     vector<Node *> temp_best = Tree_vec;
-
     s.floorplan(*this);
     float temp_cost = s.calculate_totalcost();
     float best_cost = temp_cost;
@@ -301,12 +302,11 @@ void B_Tree::SA(Solver &s)
 
     for (auto i : best)
         cout << i->index << endl;
+    exit(0);
+    for (auto i : best)
+        cout << i->index << endl;
 
     Tree_vec = best;
-    for (auto i : Tree_vec)
-        cout << i->index << endl;
-    exit(0);
-    // printTree();
 }
 
 bool B_Tree::accept(int delta_c, float T)
@@ -391,6 +391,27 @@ float B_Tree::initialTemp(Solver &s)
     float T0 = -c_avg / log(P);               // calculates initial temperature based on this formula, P being the initial probability of uphill moves
     cout << "initial temp: " << T0 << endl;
     return T0;
+}
+
+void B_Tree::prePlacedModule(Solver &s)
+{
+    printTree();
+    vector<Module *> fixedModules;
+    for (size_t i = s.Modules.size() - 1; i >= 0 && s.Modules[i]->fixed; --i)
+        fixedModules.push_back(s.Modules[i]);
+    for (auto i : fixedModules)
+    {
+        Node *fixedNode = Tree_vec[i->index], *_it = fixedNode->parent, *firstDominatedNode = 0;
+        while (_it != 0)
+        {
+            if (s.Modules[_it->index]->isDominated(s.Modules[fixedNode->index]))
+                break;
+            _it = _it->parent;
+        }
+        firstDominatedNode = _it;
+        cout << s.Modules[fixedNode->index]->location.x << ' ' << s.Modules[fixedNode->index]->location.y << endl;
+        cout << s.Modules[firstDominatedNode->index]->location.x << ' ' << s.Modules[firstDominatedNode->index]->location.y << endl;
+    }
 }
 
 void B_Tree::printTreePreorder(Node *node)
