@@ -5,9 +5,8 @@
 #define P 0.99
 #define K 10
 #define epsilon 0.001
-#define ratio     0.85
-#define lambdatf  0.005
-
+#define ratio 0.85
+#define lambdatf 0.005
 
 void B_Tree::create_tree(const Solver &s)
 {
@@ -31,7 +30,6 @@ void B_Tree::create_tree(const Solver &s)
             insert(i, (i - 1) / 2, false, false);
         }
     }
-    //printTree();
 
     // remove(6, 0);
     // printTree();
@@ -85,30 +83,48 @@ void B_Tree::remove(int index, bool child_left) // if child_left == True -> swap
         return;
     if (_to_remove->left == 0 && _to_remove->right == 0) // case 1 : delete leaf node
     {
-        if (_to_remove->isLeftChild())
-            _to_remove->parent->left = 0;
-        else
-            _to_remove->parent->right = 0;
+        if (_to_remove->parent != 0)
+        {
+            if (_to_remove->isLeftChild())
+                _to_remove->parent->left = 0;
+            else
+                _to_remove->parent->right = 0;
+        }
     }
     else if (_to_remove->left == 0 || _to_remove->right == 0) // case 2 : delete node with single child
     {
         Node *_to_remove_child = (_to_remove->right != 0) ? _to_remove->right : _to_remove->left;
-        if (_to_remove->isLeftChild())
-            _to_remove->parent->left = _to_remove_child;
-        else
-            _to_remove->parent->right = _to_remove_child;
+        if (_to_remove == root)
+            root = _to_remove_child;
+        if (_to_remove->parent != 0)
+        {
+            if (_to_remove->isLeftChild())
+                _to_remove->parent->left = _to_remove_child;
+            else
+                _to_remove->parent->right = _to_remove_child;
+        }
         _to_remove_child->parent = _to_remove->parent;
     }
     else // case 3 : delete node with two children
     {
+        bool isRootChosen = 0, isToRemoveRoot = (root == _to_remove);
+        Node *newRoot = 0;
         while (_to_remove->left != 0 || _to_remove->right != 0)
         {
             Node *child_to_swap = child_left ? _to_remove->left : _to_remove->right;
             if (child_to_swap == 0)
                 child_to_swap = !child_left ? _to_remove->left : _to_remove->right;
             swap(_to_remove->index, child_to_swap->index);
+            if (!isRootChosen)
+            {
+                newRoot = Tree_vec[child_to_swap->index];
+                isRootChosen = 1;
+            }
         }
-        (_to_remove->isLeftChild() ? _to_remove->parent->left : _to_remove->parent->right) = 0;
+        if (isToRemoveRoot)
+            root = newRoot;
+        if (_to_remove->parent != 0)
+            (_to_remove->isLeftChild() ? _to_remove->parent->left : _to_remove->parent->right) = 0;
     }
     Tree_vec[index] = 0;
     delete _to_remove;
@@ -154,8 +170,8 @@ void B_Tree::swap(int index1, int index2) // deal with normal case first (check)
     Node *tmp = node1->parent;
 
     // parent_childi see nodei is its parent's left or right child
-    Node *&parent_child1 = (node1 != root_original) ? (node1->isLeftChild() ? node1->parent->left : node1->parent->right) : dummy;
-    Node *&parent_child2 = (node2 != root_original) ? (node2->isLeftChild() ? node2->parent->left : node2->parent->right) : dummy;
+    Node *&parent_child1 = (node1 != root_original) ? ((node1->isLeftChild() ? node1->parent->left : node1->parent->right)) : dummy;
+    Node *&parent_child2 = (node2 != root_original) ? ((node2->isLeftChild() ? node2->parent->left : node2->parent->right)) : dummy;
 
     if (!PCrelationship)
     {
@@ -215,144 +231,163 @@ void B_Tree::swap(int index1, int index2) // deal with normal case first (check)
 
 void B_Tree::move(int index1, int index2, bool parent_left, bool child_left)
 {
+
     remove(index1, 1);
     Tree_vec[index1] = new Node(index1);
     insert(index1, index2, parent_left, child_left);
 }
 
-void B_Tree::SA(Solver & s){
-    vector<Node *> best=Tree_vec;
-    vector<Node *> temp_best=Tree_vec;
-    
+void B_Tree::SA(Solver &s)
+{
+    vector<Node *> best = Tree_vec;
+    vector<Node *> temp_best = Tree_vec;
+
     s.floorplan(*this);
-    float temp_cost=s.calculate_totalcost();
-    float best_cost=temp_cost;
+    float temp_cost = s.calculate_totalcost();
+    float best_cost = temp_cost;
     s.Contour_H.clear();
-    float new_cost=0, delta_c;
+    float new_cost = 0, delta_c;
 
-    const int n=K*s.Modules.size();// total number of uphill moves
-    float T0=initialTemp(s); 
-    float T=T0;
-    float nmoves=0, uphill=0, reject=0, reject_ratio;
+    const int n = K * s.Modules.size(); // total number of uphill moves
+    float T0 = initialTemp(s);
+    float T = T0;
+    float nmoves = 0, uphill = 0, reject = 0, reject_ratio;
 
-    cout<<"where????"<<endl;
-    //cout<<"reject/nmoves: "<<reject/nmoves<<endl;
-    //cout<<"T: "<<T<<endl;
-    do{
-        while(uphill<n && nmoves<=2*n){
-            new_cost=perturb(s);
-            delta_c=new_cost-temp_cost;
+    cout << "where????" << endl;
+    // cout<<"reject/nmoves: "<<reject/nmoves<<endl;
+    // cout<<"T: "<<T<<endl;
+    do
+    {
+        while (uphill < n && nmoves <= 2 * n)
+        {
+            new_cost = perturb(s);
+            delta_c = new_cost - temp_cost;
 
-            if(delta_c<=0){ //down-hill move
-                temp_best=Tree_vec;
-                temp_cost=new_cost;
-                cout<<"DOWN HILLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"<<endl;
+            if (delta_c <= 0)
+            { // down-hill move
+                temp_best = Tree_vec;
+                temp_cost = new_cost;
+                cout << "DOWN HILLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL" << endl;
             }
-            else{ //uphill move
-                if(accept(delta_c, T)){ //decide if we should accept the new tree
-                    cout<<"UPHILL ACCEPTEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"<<endl;
-                    temp_best=Tree_vec; 
-                    temp_cost=new_cost;
+            else
+            { // uphill move
+                if (accept(delta_c, T))
+                { // decide if we should accept the new tree
+                    cout << "UPHILL ACCEPTEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD" << endl;
+                    temp_best = Tree_vec;
+                    temp_cost = new_cost;
                     uphill++;
                 }
-                else{
+                else
+                {
                     reject++;
-                    cout<<"REJECTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"<<endl;
+                    cout << "REJECTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT" << endl;
                 }
             }
 
-            if(new_cost<best_cost){
-                best=Tree_vec; 
-                best_cost=new_cost;
+            if (new_cost < best_cost)
+            {
+                best = Tree_vec;
+                best_cost = new_cost;
             }
-            cout<<"best cost: "<<best_cost<<endl;
+            cout << "best cost: " << best_cost << endl;
             nmoves++;
         }
-        
-        reject_ratio=reject/nmoves;
-        nmoves=0;
-        uphill=0;
-        T=T<lambdatf*T0?0.1*T:ratio*T;
-    }while(reject_ratio<=0.95 && T>=epsilon);
-    cout<<"reject: "<<reject<<endl;
-    cout<<"nmoves: "<<nmoves<<endl;
-    
-    Tree_vec=best;
+
+        reject_ratio = reject / nmoves;
+        nmoves = 0;
+        uphill = 0;
+        T = T < lambdatf * T0 ? 0.1 * T : ratio * T;
+    } while (reject_ratio <= 0.95 && T >= epsilon);
+    cout << "reject: " << reject << endl;
+    cout << "nmoves: " << nmoves << endl;
+
+    Tree_vec = best;
 }
 
-bool B_Tree::accept(int delta_c, float T){
-    float prob=exp(-delta_c/T);
-    cout<<"prob: "<<prob<<endl;
-    double r=((double)rand()/(RAND_MAX)); 
-    cout<<"r: "<<r<<endl;
-    if(r < prob){
-        return true; //accept
-    } 
-    else{
+bool B_Tree::accept(int delta_c, float T)
+{
+    float prob = exp(-delta_c / T);
+    cout << "prob: " << prob << endl;
+    double r = ((double)rand() / (RAND_MAX));
+    cout << "r: " << r << endl;
+    if (r < prob)
+    {
+        return true; // accept
+    }
+    else
+    {
         return false;
     }
 }
 
-float B_Tree::perturb(Solver & s){
-    int op=rand()%3+1;
-    if(op==1){
-        int m1=rand()%(s.Modules.size());
-        cout<<"op1: rotate "<<m1<<endl;
+float B_Tree::perturb(Solver &s)
+{
+    int op = rand() % 3 + 1;
+    if (op == 1)
+    {
+        int m1 = rand() % (s.Modules.size());
+        cout << "op1: rotate " << m1 << endl;
         rotate(m1);
-        //rotate(rand()%(s.Modules.size()));
+        // rotate(rand()%(s.Modules.size()));
     }
-    else if(op==2){
-        bool parent_left=(rand()%2==1)?true:false;
-        bool child_left=(rand()%2==1)?true:false;
-        int m1=rand()%(s.Modules.size());
+    else if (op == 2)
+    {
+        bool parent_left = (rand() % 2 == 1) ? true : false;
+        bool child_left = (rand() % 2 == 1) ? true : false;
+        int m1 = rand() % (s.Modules.size());
         int m2;
-        do{
-            m2=rand()%(s.Modules.size());
-        }while(m1==m2);
+        do
+        {
+            m2 = rand() % (s.Modules.size());
+        } while (m1 == m2);
 
-        cout<<"op2: move "<<m1<<" to "<<m2<<endl;
+        cout << "op2: move " << m1 << " to " << m2 << endl;
         move(m1, m2, parent_left, child_left);
     }
-    else if(op==3){            
-        int m1=rand()%(s.Modules.size());
+    else if (op == 3)
+    {
+        int m1 = rand() % (s.Modules.size());
         int m2;
-        do{
-            m2=rand()%(s.Modules.size());
-        }while(m1==m2);
-        cout<<"op3: swap "<<m1<<" and "<<m2<<endl;
-        swap(m1,m2);
+        do
+        {
+            m2 = rand() % (s.Modules.size());
+        } while (m1 == m2);
+        cout << "op3: swap " << m1 << " and " << m2 << endl;
+        swap(m1, m2);
     }
     s.floorplan(*this);
-    float cost=s.calculate_totalcost();
+    float cost = s.calculate_totalcost();
     s.Contour_H.clear();
 
-    printTree();
+    // printTree();
     return cost;
 }
 
-float B_Tree::initialTemp(Solver & s){
-    float uphill_cost=0;
-    float prev_cost=perturb(s);
-    int uphill_times=0; //counting number of uphill moves
+float B_Tree::initialTemp(Solver &s)
+{
+    float uphill_cost = 0;
+    float prev_cost = perturb(s);
+    int uphill_times = 0; // counting number of uphill moves
 
-    for(int i=1; i<N; ++i){
-        float cost=perturb(s);
-        if(cost>prev_cost){
-            uphill_cost+=(cost-prev_cost);
+    for (int i = 1; i < N; ++i)
+    {
+        float cost = perturb(s);
+        if (cost > prev_cost)
+        {
+            uphill_cost += (cost - prev_cost);
             uphill_times++;
-            //cout<<"UPHILL"<<endl;
+            // cout<<"UPHILL"<<endl;
         }
-        prev_cost=cost;
-        //printTree();
+        prev_cost = cost;
+        // printTree();
     }
 
-    float c_avg=uphill_cost/uphill_times; // calculates average difference of uphill moves
-    float T0=-c_avg/log(P); // calculates initial temperature based on this formula, P being the initial probability of uphill moves
-    cout<<"initial temp: "<<T0<<endl;
+    float c_avg = uphill_cost / uphill_times; // calculates average difference of uphill moves
+    float T0 = -c_avg / log(P);               // calculates initial temperature based on this formula, P being the initial probability of uphill moves
+    cout << "initial temp: " << T0 << endl;
     return T0;
 }
-
-
 
 void B_Tree::printTreePreorder(Node *node)
 { // for debug

@@ -13,7 +13,15 @@ public:
     Node() {}
     Node(int _index) : parent(0), left(0), right(0), index(_index), _isRotated(0), WHtype(0) {}
     ~Node() {}
-    bool isLeftChild() { return (parent->left == this); }
+    bool isLeftChild()
+    {
+        if (parent == 0)
+        {
+            cout << "node " << index << " don't have parent but isLeftChild() is called!!!\n";
+            return 0;
+        }
+        return (parent->left == this);
+    }
     bool isChildOf(Node *_p) { return (this == _p->left || this == _p->right); }
     void rotate() { _isRotated = !_isRotated; }
     void changeWH() { WHtype++; }
@@ -56,9 +64,9 @@ public:
     void changeWH(int index) { Tree_vec[index]->changeWH(); } // call this will render a new width and height(if existed)
     void swap(int index1, int index2);
     void move(int index1, int index2, bool parent_left, bool child_left); // move index1 to index2's left(right) child, depends on child_left == 1(0)
-    float perturb(Solver & s);
-    float initialTemp(Solver & s);
-    void SA(Solver & s);
+    float perturb(Solver &s);
+    float initialTemp(Solver &s);
+    void SA(Solver &s);
     bool accept(int delta_c, float T);
 
     void destroy_tree();
