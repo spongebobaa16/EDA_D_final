@@ -80,12 +80,12 @@ int main(int argc, char *argv[])
     // float T0=t.initialTemp(s);
     // cout<<"yayyyyy: "<<T0<<endl;
     // t.printTree();
-    t.SA(s);
-<<<<<<< Updated upstream
-    t.printTree();
-    
-=======
-    t.prePlacedModule(s);
->>>>>>> Stashed changes
+    do
+    {
+        t.SA(s);
+        t.printTree();
+
+    } while (!t.prePlacedModule(s));
+    s.floorplan(t);
     s.outputFloorPlan();
 }

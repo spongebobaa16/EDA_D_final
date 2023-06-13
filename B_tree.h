@@ -68,9 +68,9 @@ public:
     float initialTemp(Solver &s);
     void SA(Solver &s);
     bool accept(int delta_c, float T);
-    void prePlacedModule(Solver &s);
+    bool prePlacedModule(Solver &s);
     void destroy_tree();
-
+    void exchangableNode(Solver &s, Node *_node, Node *_fixed, vector<Node *> &D, size_t _specificDirection = 0);
     // Debug
     void printTreePreorder(Node *node);
     void printTree(const string &prefix, Node *parent, bool isLeft, bool isRoot); // left subtree is on the top

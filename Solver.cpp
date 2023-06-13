@@ -156,7 +156,7 @@ void Solver::placeBlock(Node *node, int type)
     else if (type == 1)
     {
         int from_x = 0, to_x = 0;
-        if (Modules[node->index]->fixed)
+        if (Modules[node->index]->fixed && 0)
         {
             from_x = Modules[node->index]->fix_location.x;
             to_x = from_x + Modules[node->index]->width;
@@ -173,7 +173,7 @@ void Solver::placeBlock(Node *node, int type)
     else if (type == 2)
     {
         int from_x = 0, to_x = 0;
-        if (Modules[node->index]->fixed)
+        if (Modules[node->index]->fixed && 0)
         {
             from_x = Modules[node->index]->fix_location.x;
             to_x = from_x + Modules[node->index]->width;

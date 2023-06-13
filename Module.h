@@ -41,9 +41,15 @@ public:
         }
     }
 
-    bool isDominated(Module *_mod)
+    bool isDominated(Module *_fixed)
     {
-        return (_mod->location.x >= location.x && _mod->location.y >= location.y);
+        if (fixed)
+            return (_fixed->fix_location.x >= fix_location.x && _fixed->fix_location.y >= fix_location.y);
+        return (_fixed->fix_location.x >= location.x && _fixed->fix_location.y >= location.y);
+    }
+    size_t manhattanDistance_LC(Module *_fixed) // manhattan distance between this and _n 's left down corner
+    {
+        return abs(location.x - _fixed->fix_location.x) + abs(location.y - _fixed->fix_location.y);
     }
 };
 

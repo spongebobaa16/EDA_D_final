@@ -300,12 +300,6 @@ void B_Tree::SA(Solver &s)
     cout << "reject: " << reject << endl;
     cout << "nmoves: " << nmoves << endl;
 
-    for (auto i : best)
-        cout << i->index << endl;
-    exit(0);
-    for (auto i : best)
-        cout << i->index << endl;
-
     Tree_vec = best;
 }
 
@@ -393,25 +387,66 @@ float B_Tree::initialTemp(Solver &s)
     return T0;
 }
 
-void B_Tree::prePlacedModule(Solver &s)
-{
-    printTree();
+bool B_Tree::prePlacedModule(Solver &s) // fixed module is root???  // if the place is empty where fixed module wants to go??
+{                                       // D = {} ??
+    // printTree();
     vector<Module *> fixedModules;
+    s.outputFloorPlan(0);
     for (size_t i = s.Modules.size() - 1; i >= 0 && s.Modules[i]->fixed; --i)
         fixedModules.push_back(s.Modules[i]);
     for (auto i : fixedModules)
     {
-        Node *fixedNode = Tree_vec[i->index], *_it = fixedNode->parent, *firstDominatedNode = 0;
+        Node *fixedNode = Tree_vec[i->index], *_it = fixedNode->parent, *firstDominatedNode = 0, *_prev = fixedNode; // _prev is to record which subtree does fixed node climb up from
         while (_it != 0)
         {
             if (s.Modules[_it->index]->isDominated(s.Modules[fixedNode->index]))
+            {
                 break;
+            }
+            if (_it == root)
+                break;
+            _prev = _it;
             _it = _it->parent;
         }
-        firstDominatedNode = _it;
-        cout << s.Modules[fixedNode->index]->location.x << ' ' << s.Modules[fixedNode->index]->location.y << endl;
-        cout << s.Modules[firstDominatedNode->index]->location.x << ' ' << s.Modules[firstDominatedNode->index]->location.y << endl;
+        firstDominatedNode = Tree_vec[i->index] == root ? root : _it;
+        cout << fixedNode->index << ' ' << s.Modules[fixedNode->index]->fix_location.x << ' ' << s.Modules[fixedNode->index]->fix_location.y << endl;
+        cout << firstDominatedNode->index << ' ' << s.Modules[firstDominatedNode->index]->location.x << ' ' << s.Modules[firstDominatedNode->index]->location.y << endl;
+        cout << _prev->isLeftChild() << endl;
+        vector<Node *> D;
+        exchangableNode(s, firstDominatedNode, fixedNode, D, (Tree_vec[i->index] == root ? 0 : (_prev->isLeftChild() ? 2 : 1))); // from which subtree -> search the other
+        if (D.empty())
+            return 0;
+        cout << "D = \n";
+        for (auto j : D)
+            cout << j->index << ' ';
+        cout << endl;
+        int closestDistance = 2147483647, closestIndex = -1;
+        for (auto j : D)
+        {
+            cout << s.Modules[j->index]->manhattanDistance_LC(s.Modules[fixedNode->index]) << ' ';
+            if (s.Modules[j->index]->manhattanDistance_LC(s.Modules[fixedNode->index]) < closestDistance)
+            {
+                closestDistance = s.Modules[j->index]->manhattanDistance_LC(s.Modules[fixedNode->index]);
+                closestIndex = j->index;
+            }
+        }
+        cout << endl;
+        cout << closestIndex << endl
+             << endl;
+        swap(i->index, closestIndex);
     }
+    return 1;
+}
+void B_Tree::exchangableNode(Solver &s, Node *_node, Node *_fixed, vector<Node *> &D, size_t _specificDirection) // specificDirection : 0 -> both, 1 -> left only, 2 -> right only
+{
+    if (_node == 0 || (!s.Modules[_node->index]->fixed && !s.Modules[_node->index]->isDominated(s.Modules[_fixed->index]))) // ignore case with two fixed module
+        return;
+    if (!s.Modules[_node->index]->fixed)
+        D.push_back(_node);
+    if (_specificDirection == 1 || _specificDirection == 0)
+        exchangableNode(s, _node->left, _fixed, D);
+    if (_specificDirection == 2 || _specificDirection == 0)
+        exchangableNode(s, _node->right, _fixed, D);
 }
 
 void B_Tree::printTreePreorder(Node *node)
