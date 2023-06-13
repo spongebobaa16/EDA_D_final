@@ -298,15 +298,15 @@ void B_Tree::SA(Solver &s)
     } while (reject_ratio <= 0.95 && T >= epsilon);
     cout << "reject: " << reject << endl;
     cout << "nmoves: " << nmoves << endl;
-    
-    // for(auto i:best)
-    //     cout<<i->index<<endl;
-    
+
+    for (auto i : best)
+        cout << i->index << endl;
+
     Tree_vec = best;
-    // for(auto i:Tree_vec)
-    //     cout<<i->index<<endl;
-    // exit(0);
-    //printTree();
+    for (auto i : Tree_vec)
+        cout << i->index << endl;
+    exit(0);
+    // printTree();
 }
 
 bool B_Tree::accept(int delta_c, float T)
