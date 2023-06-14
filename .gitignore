@@ -1,1 +1,6 @@
 *.o
+visualizer_rectangle.py
+floorplan.txt
+floorplan.png
+floorplan_before.txt
+floorplan_before.png
