@@ -147,7 +147,7 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode =
     // cout << "\tw: " << Modules[node->index]->width << "\th: " << Modules[node->index]->height << endl;
     // cout << '\n'
     //      << node->index << ' ';
-    if (node->isRotated() && !Modules[node->index]->fixed) // do not rotate the fixed block
+    if (node->isRotated() && (!Modules[node->index]->fixed || !isFixedMode)) // do not rotate the fixed block
         Modules[node->index]->rotate();
     int from_x = 0, to_x = 0, Yloc = 0;
     // for (auto i : Contour_H)
@@ -386,7 +386,6 @@ float Solver::calculate_totalcost()
         prev_til_x = Contour_H[i].til_x;
     }
     // cout<<"A: "<<A<<endl;
-    
 
     l = Connections.size();
     for (int i = 0; i < l; i++)
@@ -395,7 +394,7 @@ float Solver::calculate_totalcost()
     }
     // cout<<"HPWL: "<<HPWL<<endl;
 
-    return 0.3*A + 0.7*HPWL; //////////////////////////////////////////////
+    return 0.3 * A + 0.7 * HPWL; //////////////////////////////////////////////
 }
 
 void Solver::printModules()

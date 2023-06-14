@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     t.SA(s);
 
     t.printTree();
-    s.floorplan(t, 1);
+    s.floorplan(t, 0);
     // bool _first = 1;
     // do
     // {
