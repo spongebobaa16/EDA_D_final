@@ -56,6 +56,8 @@ void Solver::readFile(const char *filename)
 
     Contour_horizontal initContour = Contour_horizontal(chip_width, 0);
     Contour_H.push_back(initContour);
+    for (size_t i = Modules.size() - 1; i >= 0 && Modules[i]->fixed; --i)
+        fixedModules.push_back(Modules[i]);
 }
 
 void Solver::readFile_givenWL(const char *filename)
@@ -147,7 +149,7 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode =
     // cout << "\tw: " << Modules[node->index]->width << "\th: " << Modules[node->index]->height << endl;
     // cout << '\n'
     //      << node->index << ' ';
-    if (node->isRotated() && (!Modules[node->index]->fixed || !isFixedMode)) // do not rotate the fixed block
+    if (node->isRotated() && !Modules[node->index]->fixed) // do not rotate the fixed block
         Modules[node->index]->rotate();
     int from_x = 0, to_x = 0, Yloc = 0;
     // for (auto i : Contour_H)
@@ -161,9 +163,31 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode =
             from_x = Modules[node->index]->fix_location.x;
             // cout << "from_x in type 0 = " << from_x << endl;
             to_x = from_x + Modules[node->index]->width;
-            Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
-            Coord loc(from_x, Yloc);
-            Modules[node->index]->location = loc;
+            // Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
+            Yloc = Modules[node->index]->fix_location.y;
+            // Coord loc(from_x, Yloc);
+            // Modules[node->index]->location = loc;
+        }
+        else if (isFixedMode)
+        {
+            Coord root_loc(0, 0);
+            Modules[node->index]->location = root_loc;
+            Yloc = findY(node->index, root_loc.x, Modules[node->index]->width);
+            Coord *_assume = new Coord(root_loc.x, Yloc);
+            // for (auto i : fixedModules)
+            for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
+            {
+                if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                {
+                    Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
+                    break;
+                }
+                else if (i == n - 1)
+                {
+                    Yloc = UpdateContour_H(node->index, from_x, to_x);
+                    break;
+                }
+            }
         }
         else
         {
@@ -171,6 +195,8 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode =
             Modules[node->index]->location = root_loc;
             Yloc = findYandUpdateContour_H(node->index, 0, Modules[node->index]->width);
         }
+        Coord loc(from_x, Yloc);
+        Modules[node->index]->location = loc;
     }
     else if (type == 1)
     {
@@ -180,7 +206,30 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode =
             from_x = Modules[node->index]->fix_location.x;
             // cout << "from_x in type 1 = " << from_x << endl;
             to_x = from_x + Modules[node->index]->width;
-            Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
+            // Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
+            Yloc = Modules[node->index]->fix_location.y;
+        }
+        else if (isFixedMode)
+        {
+            from_x = Modules[node->parent->index]->location.x + Modules[node->parent->index]->width;
+            to_x = from_x + Modules[node->index]->width;
+            // Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
+            Yloc = findY(node->index, from_x, to_x);
+            Coord *_assume = new Coord(from_x, Yloc);
+            // for (auto i : fixedModules)
+            for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
+            {
+                if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                {
+                    Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
+                    break;
+                }
+                else if (i == n - 1)
+                {
+                    Yloc = UpdateContour_H(node->index, from_x, to_x);
+                    break;
+                }
+            }
         }
         else
         {
@@ -199,7 +248,29 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode =
             from_x = Modules[node->index]->fix_location.x;
             // cout << "from_x in type 2 = " << from_x << endl;
             to_x = from_x + Modules[node->index]->width;
-            Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
+            // Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
+            Yloc = Modules[node->index]->fix_location.y;
+        }
+        else if (isFixedMode)
+        {
+            from_x = Modules[node->parent->index]->location.x;
+            to_x = from_x + Modules[node->index]->width;
+            Yloc = findY(node->index, from_x, to_x);
+            Coord *_assume = new Coord(from_x, Yloc);
+            // for (auto i : fixedModules)
+            for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
+            {
+                if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                {
+                    Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
+                    break;
+                }
+                else if (i == n - 1)
+                {
+                    Yloc = UpdateContour_H(node->index, from_x, to_x);
+                    break;
+                }
+            }
         }
         else
         {
@@ -262,6 +333,76 @@ int Solver::findYandUpdateContour_H_fixed(int index, int from_x, int to_x)
     // }
 
     return Modules[index]->fix_location.y;
+}
+int Solver::findY(int index, int from_x, int to_x)
+{
+    int max_height = 0;
+    int insert_place = 0;
+    bool init = false;
+    for (int i = 0; i < Contour_H.size(); i++)
+    {
+        if (!init && Contour_H[i].til_x >= to_x)
+        {
+            max_height = Contour_H[i].height;
+            init = true;
+        }
+    }
+    for (int i = Contour_H.size() - 1; i >= 0; i--)
+    {
+        if (Contour_H[i].til_x > from_x && Contour_H[i].til_x <= to_x)
+        {
+            if (Contour_H[i].height > max_height)
+                max_height = Contour_H[i].height;
+        }
+    }
+
+    return max_height;
+}
+int Solver::UpdateContour_H(int index, int from_x, int to_x, Module *fixedBlock)
+{
+    int max_height = 0;
+    int insert_place = 0;
+    bool init = false;
+    for (int i = 0; i < Contour_H.size(); i++)
+    {
+        if (!init && Contour_H[i].til_x >= to_x)
+        {
+            max_height = Contour_H[i].height;
+            init = true;
+        }
+    }
+    // cout << "pre_max_height: " << max_height << endl;
+    for (int i = Contour_H.size() - 1; i >= 0; i--)
+    {
+        if (Contour_H[i].til_x > from_x && Contour_H[i].til_x <= to_x)
+        {
+            if (Contour_H[i].height <= max_height)
+            {
+                Contour_H.erase(Contour_H.begin() + i);
+            }
+            else
+            {
+                max_height = Contour_H[i].height;
+                Contour_H.erase(Contour_H.begin() + i);
+            }
+        }
+    }
+
+    for (int i = 0; i < Contour_H.size(); i++)
+    {
+        if (to_x > Contour_H[i].til_x)
+            insert_place++;
+    }
+    // cout << "insert_place: " << insert_place << " max_height: " << max_height << endl;
+    Contour_horizontal a(to_x, (fixedBlock != 0) ? (Modules[index]->fix_location.y + Modules[index]->height) : (Modules[index]->height + max_height));
+    Contour_H.insert(Contour_H.begin() + insert_place, a);
+
+    // for (int i = 0; i < Contour_H.size(); i++)
+    // {
+    //     cout << " til_x: " << Contour_H[i].til_x << " height: " << Contour_H[i].height << endl;
+    // }
+
+    return fixedBlock != 0 ? fixedBlock->fix_location.y : max_height;
 }
 int Solver::findYandUpdateContour_H(int index, int from_x, int to_x)
 { // not sure all correct??
@@ -370,6 +511,24 @@ int Solver::findYandUpdateContour_H(int index, int from_x, int to_x)
         }
         return max_height;
     */
+}
+
+bool Solver::checkOverlap(bool _toPlaceLeft)
+{
+    for (auto fixModule : fixedModules)
+    {
+        for (size_t i = 0, n = Modules.size(); i < n; ++i)
+        {
+            if (Modules[i]->fixed)
+                continue;
+            if (Modules[i]->isOverlap(fixModule))
+            {
+                cout << i << " & " << fixModule->index << " overlap!!!" << endl;
+                return 0;
+            }
+        }
+    }
+    return 1;
 }
 
 float Solver::calculate_totalcost()

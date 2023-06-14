@@ -441,7 +441,7 @@ float B_Tree::perturb(Solver &s)
     else if (op == 4)
     {
         int m1 = rand() % (s.Modules.size());
-        s.Modules[Tree_vec[m1]->index]->changeWH(rand());   
+        s.Modules[Tree_vec[m1]->index]->changeWH(rand());
     }
     s.floorplan(*this);
     float cost = s.calculate_totalcost();
@@ -479,11 +479,11 @@ float B_Tree::initialTemp(Solver &s)
 bool B_Tree::prePlacedModule(Solver &s) // fixed module is root???  // if the place is empty where fixed module wants to go??
 {                                       // D = {} ??    // heuristic -> the floorplan usually not good when D.size() == 1
     // printTree();                     // cannot place fixed module with big height so early
-    vector<Module *> fixedModules;
+    // vector<Module *> fixedModules;
     s.outputFloorPlan(0);
-    for (size_t i = s.Modules.size() - 1; i >= 0 && s.Modules[i]->fixed; --i)
-        fixedModules.push_back(s.Modules[i]);
-    for (auto i : fixedModules)
+    // for (size_t i = s.Modules.size() - 1; i >= 0 && s.Modules[i]->fixed; --i)
+    //     fixedModules.push_back(s.Modules[i]);
+    for (auto i : s.fixedModules)
     {
         Node *fixedNode = Tree_vec[i->index], *_it = fixedNode->parent, *firstDominatedNode = 0, *_prev = fixedNode; // _prev is to record which subtree does fixed node climb up from
         while (_it != 0)
@@ -538,26 +538,26 @@ void B_Tree::exchangableNode(Solver &s, Node *_node, Node *_fixed, vector<Node *
         exchangableNode(s, _node->right, _fixed, D);
 }
 
-bool B_Tree::checkOverlap(Solver &s, bool _toPlaceLeft)
-{
-    vector<Module *> fixedModules;
-    for (size_t i = s.Modules.size() - 1; i >= 0 && s.Modules[i]->fixed; --i)
-        fixedModules.push_back(s.Modules[i]);
-    for (auto fixModule : fixedModules)
-    {
-        for (size_t i = 0, n = s.Modules.size(); i < n; ++i)
-        {
-            if (s.Modules[i]->fixed)
-                continue;
-            if (s.Modules[i]->isOverlap(fixModule))
-            {
-                cout << i << " & " << fixModule->index << " overlap!!!" << endl;
-                return 0;
-            }
-        }
-    }
-    return 1;
-}
+// bool B_Tree::checkOverlap(Solver &s, bool _toPlaceLeft)
+// {
+//     vector<Module *> fixedModules;
+//     for (size_t i = s.Modules.size() - 1; i >= 0 && s.Modules[i]->fixed; --i)
+//         fixedModules.push_back(s.Modules[i]);
+//     for (auto fixModule : fixedModules)
+//     {
+//         for (size_t i = 0, n = s.Modules.size(); i < n; ++i)
+//         {
+//             if (s.Modules[i]->fixed)
+//                 continue;
+//             if (s.Modules[i]->isOverlap(fixModule))
+//             {
+//                 cout << i << " & " << fixModule->index << " overlap!!!" << endl;
+//                 return 0;
+//             }
+//         }
+//     }
+//     return 1;
+// }
 
 void B_Tree::printTreePreorder(Node *node)
 { // for debug

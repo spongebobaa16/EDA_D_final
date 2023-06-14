@@ -70,14 +70,12 @@ public:
     void SA(Solver &s);
     bool accept(int delta_c, float T);
 
-    void copyTree(vector<Node *>& a, int size); //copy nodes in Tree_vec to a
-    void returnTree(vector<Node *> a, int size); //return nodes in a to Tree_vec
+    void copyTree(vector<Node *> &a, int size);  // copy nodes in Tree_vec to a
+    void returnTree(vector<Node *> a, int size); // return nodes in a to Tree_vec
     bool prePlacedModule(Solver &s);
     void destroy_tree();
     void exchangableNode(Solver &s, Node *_node, Node *_fixed, vector<Node *> &D, size_t _specificDirection = 0); // search for those exchangableNode
-    bool checkOverlap(Solver &s, bool _toPlaceLeft);                                                              // check if there exits overlapping, if overlapping happens after placing a fixed module, put those overlaped block
-    // to the rightmost end of B* tree, either right/left, depends on _toPlaceLeft = 0 / 1
-    //  current solution : if overlap -> SA again  (since overlap doesn't happen that frequently)
+
     //  Debug
     void
     printTreePreorder(Node *node);

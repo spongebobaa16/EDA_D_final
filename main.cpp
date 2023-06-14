@@ -38,6 +38,9 @@ int main(int argc, char *argv[])
     //     } while (!t.prePlacedModule(s));
     //     s.floorplan(t, 1);
     // } while (!t.checkOverlap(s, 1));
+    t.printTree();
+    t.prePlacedModule(s);
+    s.floorplan(t, 1);
     s.outputFloorPlan();
 
     //     do

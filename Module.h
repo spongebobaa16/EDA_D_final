@@ -52,36 +52,39 @@ public:
     {
         return abs(location.x - _fixed->fix_location.x) + abs(location.y - _fixed->fix_location.y);
     }
-    bool coordWithin(Coord _point)
+    bool coordWithin(Coord _point, Coord *_assume)
     {
-        return (_point.x > location.x && _point.x < (location.x + width)) && (_point.y > location.y && _point.y < (location.y + height));
+        if (_assume == 0)
+            return (_point.x > location.x && _point.x < (location.x + width)) && (_point.y > location.y && _point.y < (location.y + height));
+        else
+            return (_point.x > _assume->x && _point.x < (_assume->x + width)) && (_point.y > _assume->y && _point.y < (_assume->y + height));
     }
-    bool isOverlap(Module *_fixed)
-    { // right_bottom corner, left top corner, right top corner
+    bool isOverlap(Module *_fixed, Coord *_assume = 0) // _assume is to check if i placed this module at _assume, will overlap happens?
+    {                                                  // right_bottom corner, left top corner, right top corner
         Coord rb(_fixed->fix_location.x + _fixed->width, _fixed->fix_location.y),
             lt(_fixed->fix_location.x, _fixed->fix_location.y + _fixed->height), rt(_fixed->fix_location.x + _fixed->width, _fixed->fix_location.y + _fixed->height);
-        if (coordWithin(_fixed->fix_location))
+        if (coordWithin(_fixed->fix_location, _assume))
         {
             cout << "lb overlap!!!" << endl;
             return 1;
         }
-        else if (coordWithin(rb))
+        else if (coordWithin(rb, _assume))
         {
             cout << "rb overlap!!!" << endl;
             return 1;
         }
-        else if (coordWithin(lt))
+        else if (coordWithin(lt, _assume))
         {
             cout << "lt overlap!!!" << endl;
             return 1;
         }
-        else if (coordWithin(rt))
+        else if (coordWithin(rt, _assume))
         {
             cout << "rt overlap!!!" << endl;
             return 1;
         }
         return 0;
-        return coordWithin(_fixed->fix_location) || coordWithin(rb) || coordWithin(lt) || coordWithin(rt);
+        // return coordWithin(_fixed->fix_location, _assume) || coordWithin(rb, _assume) || coordWithin(lt, _assume) || coordWithin(rt, _assume);
     }
 };
 
