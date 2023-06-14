@@ -405,7 +405,7 @@ bool B_Tree::accept(int delta_c, float T)
 
 float B_Tree::perturb(Solver &s)
 {
-    int op = rand() % 3 + 1;
+    int op = rand() % 4 + 1;
     if (op == 1)
     {
         int m1 = rand() % (s.Modules.size());
@@ -437,6 +437,11 @@ float B_Tree::perturb(Solver &s)
         } while (m1 == m2);
         // cout << "op3: swap " << m1 << " and " << m2 << endl;
         swap(m1, m2);
+    }
+    else if (op == 4)
+    {
+        int m1 = rand() % (s.Modules.size());
+        s.Modules[Tree_vec[m1]->index]->changeWH(rand());   
     }
     s.floorplan(*this);
     float cost = s.calculate_totalcost();
