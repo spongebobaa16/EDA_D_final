@@ -81,8 +81,8 @@ def main():
             if isFirstLine:
                 bounding_box = [float(i) for i in tokens]
             else:
-                name = tokens[0][0] + str(int(tokens[0][1:]) - 1)
-                # name = tokens[0]
+                # name = tokens[0][0] + str(int(tokens[0][1:]) - 1)
+                name = tokens[0]
                 positions.append(
                     {"name": name, "x": float(tokens[1]), "y": float(tokens[2]), "width": float(tokens[3]), "height": float(tokens[4])})
             isFirstLine = False
