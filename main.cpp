@@ -80,12 +80,18 @@ int main(int argc, char *argv[])
     // float T0=t.initialTemp(s);
     // cout<<"yayyyyy: "<<T0<<endl;
     // t.printTree();
+    bool _first = 1;
     do
     {
-        t.SA(s);
-        t.printTree();
-
-    } while (!t.prePlacedModule(s));
-    s.floorplan(t);
+        do
+        {
+            t.SA(s);
+            // t.printTree();
+            // if (!_first)
+            //     t.checkOverlap(s, 1);
+            // _first = 0;
+        } while (!t.prePlacedModule(s));
+        s.floorplan(t, 1);
+    } while (!t.checkOverlap(s, 1));
     s.outputFloorPlan();
 }

@@ -132,65 +132,137 @@ void Solver::readFile_givenWL(const char *filename)
 //     }
 // }
 
-void Solver::floorplan(B_Tree t)
+void Solver::floorplan(B_Tree t, bool isFixedMode)
 {
-    placeBlock(t.root, 0);
+    // cout << endl;
+    placeBlock(t.root, 0, isFixedMode);
 }
 
-void Solver::placeBlock(Node *node, int type)
+void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode = 1 when we really want to treat fixed block as pre-placed module
 {
     if (node == NULL)
         return;
     Modules[node->index]->changeWH(node->WHtype);
     // cout << "index:" << node->index  <<"\tWHtype: " << node->WHtype;
     // cout << "\tw: " << Modules[node->index]->width << "\th: " << Modules[node->index]->height << endl;
-
-    if (node->isRotated())
+    // cout << '\n'
+    //      << node->index << ' ';
+    if (node->isRotated() && !Modules[node->index]->fixed) // do not rotate the fixed block
         Modules[node->index]->rotate();
+    int from_x = 0, to_x = 0, Yloc = 0;
+    // for (auto i : Contour_H)
+    //     cout << "( " << i.height << " , " << i.til_x << " )"
+    //          << " ; ";
+    // cout << endl;
     if (type == 0) // if fixed block is root???
     {
-        Coord root_loc(0, 0);
-        Modules[node->index]->location = root_loc;
-        int Yloc = findYandUpdateContour_H(node->index, 0, Modules[node->index]->width);
+        if (Modules[node->index]->fixed && isFixedMode)
+        {
+            from_x = Modules[node->index]->fix_location.x;
+            // cout << "from_x in type 0 = " << from_x << endl;
+            to_x = from_x + Modules[node->index]->width;
+            Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
+            Coord loc(from_x, Yloc);
+            Modules[node->index]->location = loc;
+        }
+        else
+        {
+            Coord root_loc(0, 0);
+            Modules[node->index]->location = root_loc;
+            Yloc = findYandUpdateContour_H(node->index, 0, Modules[node->index]->width);
+        }
     }
     else if (type == 1)
     {
-        int from_x = 0, to_x = 0;
-        if (Modules[node->index]->fixed && 0)
+        // int from_x = 0, to_x = 0, Yloc = 0;
+        if (Modules[node->index]->fixed && isFixedMode)
         {
             from_x = Modules[node->index]->fix_location.x;
+            // cout << "from_x in type 1 = " << from_x << endl;
             to_x = from_x + Modules[node->index]->width;
+            Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
         }
         else
         {
             from_x = Modules[node->parent->index]->location.x + Modules[node->parent->index]->width;
             to_x = from_x + Modules[node->index]->width;
+            Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
         }
-        int Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
         Coord loc(from_x, Yloc);
         Modules[node->index]->location = loc;
     }
     else if (type == 2)
     {
-        int from_x = 0, to_x = 0;
-        if (Modules[node->index]->fixed && 0)
+        // int from_x = 0, to_x = 0, Yloc = 0;
+        if (Modules[node->index]->fixed && isFixedMode)
         {
             from_x = Modules[node->index]->fix_location.x;
+            // cout << "from_x in type 2 = " << from_x << endl;
             to_x = from_x + Modules[node->index]->width;
+            Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
         }
         else
         {
             from_x = Modules[node->parent->index]->location.x;
             to_x = from_x + Modules[node->index]->width;
+            Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
         }
-        int Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
         Coord loc(from_x, Yloc);
         Modules[node->index]->location = loc;
     }
-    placeBlock(node->left, 1);
-    placeBlock(node->right, 2);
+    // if (Modules[node->index]->fixed)
+    //     cout << "fixed Module's location = " << Modules[node->index]->location.x << ' ' << Modules[node->index]->location.y << endl;
+    placeBlock(node->left, 1, isFixedMode);
+    placeBlock(node->right, 2, isFixedMode);
 }
 
+int Solver::findYandUpdateContour_H_fixed(int index, int from_x, int to_x)
+{
+    int max_height = 0;
+    int insert_place = 0;
+    bool init = false;
+    for (int i = 0; i < Contour_H.size(); i++)
+    {
+        if (!init && Contour_H[i].til_x >= to_x)
+        {
+            max_height = Contour_H[i].height;
+            init = true;
+        }
+    }
+    // cout << "pre_max_height: " << max_height << endl;
+    for (int i = Contour_H.size() - 1; i >= 0; i--)
+    {
+        if (Contour_H[i].til_x > from_x && Contour_H[i].til_x <= to_x)
+        {
+            if (Contour_H[i].height <= max_height)
+            {
+                Contour_H.erase(Contour_H.begin() + i);
+            }
+            else
+            {
+                max_height = Contour_H[i].height;
+                Contour_H.erase(Contour_H.begin() + i);
+            }
+        }
+    }
+
+    for (int i = 0; i < Contour_H.size(); i++)
+    {
+        if (to_x > Contour_H[i].til_x)
+            insert_place++;
+    }
+    // cout << "insert_place: " << insert_place << " max_height: " << max_height << endl;
+    // Contour_horizontal a(to_x, Modules[index]->height + max_height);
+    Contour_horizontal a(to_x, Modules[index]->fix_location.y + Modules[index]->height);
+    Contour_H.insert(Contour_H.begin() + insert_place, a);
+
+    // for (int i = 0; i < Contour_H.size(); i++)
+    // {
+    //     cout << " til_x: " << Contour_H[i].til_x << " height: " << Contour_H[i].height << endl;
+    // }
+
+    return Modules[index]->fix_location.y;
+}
 int Solver::findYandUpdateContour_H(int index, int from_x, int to_x)
 { // not sure all correct??
     // cout << "\nindex: " << index << " from_x: " << from_x << " to_x: " << to_x << endl;

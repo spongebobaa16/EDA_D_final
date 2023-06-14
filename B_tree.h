@@ -70,9 +70,13 @@ public:
     bool accept(int delta_c, float T);
     bool prePlacedModule(Solver &s);
     void destroy_tree();
-    void exchangableNode(Solver &s, Node *_node, Node *_fixed, vector<Node *> &D, size_t _specificDirection = 0);
-    // Debug
-    void printTreePreorder(Node *node);
+    void exchangableNode(Solver &s, Node *_node, Node *_fixed, vector<Node *> &D, size_t _specificDirection = 0); // search for those exchangableNode
+    bool checkOverlap(Solver &s, bool _toPlaceLeft);                                                              // check if there exits overlapping, if overlapping happens after placing a fixed module, put those overlaped block
+    // to the rightmost end of B* tree, either right/left, depends on _toPlaceLeft = 0 / 1
+    //  current solution : if overlap -> SA again  (since overlap doesn't happen that frequently)
+    //  Debug
+    void
+    printTreePreorder(Node *node);
     void printTree(const string &prefix, Node *parent, bool isLeft, bool isRoot); // left subtree is on the top
 
     void printTree()

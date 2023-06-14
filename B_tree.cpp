@@ -265,13 +265,13 @@ void B_Tree::SA(Solver &s)
             { // down-hill move
                 temp_best = Tree_vec;
                 temp_cost = new_cost;
-                cout << "DOWN HILLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL" << endl;
+                // cout << "DOWN HILLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL" << endl;
             }
             else
             { // uphill move
                 if (accept(delta_c, T))
                 { // decide if we should accept the new tree
-                    cout << "UPHILL ACCEPTEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD" << endl;
+                    // cout << "UPHILL ACCEPTEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD" << endl;
                     temp_best = Tree_vec;
                     temp_cost = new_cost;
                     uphill++;
@@ -279,7 +279,7 @@ void B_Tree::SA(Solver &s)
                 else
                 {
                     reject++;
-                    cout << "REJECTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT" << endl;
+                    // cout << "REJECTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT" << endl;
                 }
             }
 
@@ -288,7 +288,7 @@ void B_Tree::SA(Solver &s)
                 best = Tree_vec;
                 best_cost = new_cost;
             }
-            cout << "best cost: " << best_cost << endl;
+            // cout << "best cost: " << best_cost << endl;
             nmoves++;
         }
 
@@ -297,8 +297,8 @@ void B_Tree::SA(Solver &s)
         uphill = 0;
         T = T < lambdatf * T0 ? 0.1 * T : ratio * T;
     } while (reject_ratio <= 0.95 && T >= epsilon);
-    cout << "reject: " << reject << endl;
-    cout << "nmoves: " << nmoves << endl;
+    // cout << "reject: " << reject << endl;
+    // cout << "nmoves: " << nmoves << endl;
 
     Tree_vec = best;
 }
@@ -306,9 +306,9 @@ void B_Tree::SA(Solver &s)
 bool B_Tree::accept(int delta_c, float T)
 {
     float prob = exp(-delta_c / T);
-    cout << "prob: " << prob << endl;
+    // cout << "prob: " << prob << endl;
     double r = ((double)rand() / (RAND_MAX));
-    cout << "r: " << r << endl;
+    // cout << "r: " << r << endl;
     if (r < prob)
     {
         return true; // accept
@@ -325,7 +325,7 @@ float B_Tree::perturb(Solver &s)
     if (op == 1)
     {
         int m1 = rand() % (s.Modules.size());
-        cout << "op1: rotate " << m1 << endl;
+        // cout << "op1: rotate " << m1 << endl;
         rotate(m1);
         // rotate(rand()%(s.Modules.size()));
     }
@@ -340,7 +340,7 @@ float B_Tree::perturb(Solver &s)
             m2 = rand() % (s.Modules.size());
         } while (m1 == m2);
 
-        cout << "op2: move " << m1 << " to " << m2 << endl;
+        // cout << "op2: move " << m1 << " to " << m2 << endl;
         move(m1, m2, parent_left, child_left);
     }
     else if (op == 3)
@@ -351,7 +351,7 @@ float B_Tree::perturb(Solver &s)
         {
             m2 = rand() % (s.Modules.size());
         } while (m1 == m2);
-        cout << "op3: swap " << m1 << " and " << m2 << endl;
+        // cout << "op3: swap " << m1 << " and " << m2 << endl;
         swap(m1, m2);
     }
     s.floorplan(*this);
@@ -375,7 +375,7 @@ float B_Tree::initialTemp(Solver &s)
         {
             uphill_cost += (cost - prev_cost);
             uphill_times++;
-            // cout<<"UPHILL"<<endl;
+            // // cout<<"UPHILL"<<endl;
         }
         prev_cost = cost;
         // printTree();
@@ -383,13 +383,13 @@ float B_Tree::initialTemp(Solver &s)
 
     float c_avg = uphill_cost / uphill_times; // calculates average difference of uphill moves
     float T0 = -c_avg / log(P);               // calculates initial temperature based on this formula, P being the initial probability of uphill moves
-    cout << "initial temp: " << T0 << endl;
+    // cout << "initial temp: " << T0 << endl;
     return T0;
 }
-
+// if fixed module is placed later, might overlap with other
 bool B_Tree::prePlacedModule(Solver &s) // fixed module is root???  // if the place is empty where fixed module wants to go??
-{                                       // D = {} ??
-    // printTree();
+{                                       // D = {} ??    // heuristic -> the floorplan usually not good when D.size() == 1
+    // printTree();                     // cannot place fixed module with big height so early
     vector<Module *> fixedModules;
     s.outputFloorPlan(0);
     for (size_t i = s.Modules.size() - 1; i >= 0 && s.Modules[i]->fixed; --i)
@@ -416,14 +416,14 @@ bool B_Tree::prePlacedModule(Solver &s) // fixed module is root???  // if the pl
         exchangableNode(s, firstDominatedNode, fixedNode, D, (Tree_vec[i->index] == root ? 0 : (_prev->isLeftChild() ? 2 : 1))); // from which subtree -> search the other
         if (D.empty())
             return 0;
-        cout << "D = \n";
-        for (auto j : D)
-            cout << j->index << ' ';
-        cout << endl;
+        // // cout << "D = \n";
+        // for (auto j : D)
+        //     // cout << j->index << ' ';
+        // // cout << endl;
         int closestDistance = 2147483647, closestIndex = -1;
         for (auto j : D)
         {
-            cout << s.Modules[j->index]->manhattanDistance_LC(s.Modules[fixedNode->index]) << ' ';
+            // cout << s.Modules[j->index]->manhattanDistance_LC(s.Modules[fixedNode->index]) << ' ';
             if (s.Modules[j->index]->manhattanDistance_LC(s.Modules[fixedNode->index]) < closestDistance)
             {
                 closestDistance = s.Modules[j->index]->manhattanDistance_LC(s.Modules[fixedNode->index]);
@@ -449,6 +449,27 @@ void B_Tree::exchangableNode(Solver &s, Node *_node, Node *_fixed, vector<Node *
         exchangableNode(s, _node->right, _fixed, D);
 }
 
+bool B_Tree::checkOverlap(Solver &s, bool _toPlaceLeft)
+{
+    vector<Module *> fixedModules;
+    for (size_t i = s.Modules.size() - 1; i >= 0 && s.Modules[i]->fixed; --i)
+        fixedModules.push_back(s.Modules[i]);
+    for (auto fixModule : fixedModules)
+    {
+        for (size_t i = 0, n = s.Modules.size(); i < n; ++i)
+        {
+            if (s.Modules[i]->fixed)
+                continue;
+            if (s.Modules[i]->isOverlap(fixModule))
+            {
+                cout << i << " & " << fixModule->index << " overlap!!!" << endl;
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
 void B_Tree::printTreePreorder(Node *node)
 { // for debug
     if (node == NULL)
@@ -456,7 +477,7 @@ void B_Tree::printTreePreorder(Node *node)
         return;
     }
 
-    cout << node->index << " ";
+    // cout << node->index << " ";
     if (node->parent != NULL)
         cout << " parent: " << node->parent->index << endl;
     else
@@ -472,13 +493,13 @@ void B_Tree::printTree(const string &prefix, Node *parent, bool isLeft, bool isR
 
     if (isRoot)
     {
-        cout << "─────";
+        // cout << "─────";
     }
     else
     {
-        cout << prefix << (isLeft ? "L├────" : "R└───");
+        // cout << prefix << (isLeft ? "L├────" : "R└───");
     }
-    cout << parent->index << endl;
+    // cout << parent->index << endl;
 
     printTree(prefix + (isLeft ? " │   " : "    "),
               parent->left, true, false);

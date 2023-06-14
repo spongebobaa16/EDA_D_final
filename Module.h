@@ -2,6 +2,7 @@
 #define MODULE_H
 
 #include <string>
+#include <iostream>
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -50,6 +51,37 @@ public:
     size_t manhattanDistance_LC(Module *_fixed) // manhattan distance between this and _n 's left down corner
     {
         return abs(location.x - _fixed->fix_location.x) + abs(location.y - _fixed->fix_location.y);
+    }
+    bool coordWithin(Coord _point)
+    {
+        return (_point.x > location.x && _point.x < (location.x + width)) && (_point.y > location.y && _point.y < (location.y + height));
+    }
+    bool isOverlap(Module *_fixed)
+    { // right_bottom corner, left top corner, right top corner
+        Coord rb(_fixed->fix_location.x + _fixed->width, _fixed->fix_location.y),
+            lt(_fixed->fix_location.x, _fixed->fix_location.y + _fixed->height), rt(_fixed->fix_location.x + _fixed->width, _fixed->fix_location.y + _fixed->height);
+        if (coordWithin(_fixed->fix_location))
+        {
+            cout << "lb overlap!!!" << endl;
+            return 1;
+        }
+        else if (coordWithin(rb))
+        {
+            cout << "rb overlap!!!" << endl;
+            return 1;
+        }
+        else if (coordWithin(lt))
+        {
+            cout << "lt overlap!!!" << endl;
+            return 1;
+        }
+        else if (coordWithin(rt))
+        {
+            cout << "rt overlap!!!" << endl;
+            return 1;
+        }
+        return 0;
+        return coordWithin(_fixed->fix_location) || coordWithin(rb) || coordWithin(lt) || coordWithin(rt);
     }
 };
 
