@@ -26,7 +26,6 @@ public:
     float calculate_totalcost();                                  // calculate floorplan's total cost
     int findYandUpdateContour_H(int index, int from_x, int to_x); // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
 
-<<<<<<< HEAD
     int                         chip_width;     // input info
     int                         chip_height;    // input info
     float                       HPWL; 
@@ -35,15 +34,6 @@ public:
     vector<Node*>               Nodes;          // store every Node*'s info, for search convenience
     vector<Connection>          Connections;    // input info
     vector<Contour_horizontal>  Contour_H;      // maintain contour to insert block efficiently
-=======
-    int chip_width;                          // input info
-    int chip_height;                         // input info
-    unordered_map<string, int> U_Name_Index; // for all modules
-    vector<Module *> Modules;                // input info, for both soft and fixed modules
-    vector<Node *> Nodes;                    // store every Node*'s info, for search convenience
-    vector<Connection> Connections;          // input info
-    vector<Contour_horizontal> Contour_H;    // maintain contour to insert block efficiently
->>>>>>> b1661a5f334198cf72779b800ed5da8562708ff5
     // vector<Contour_vertical>    Contour_V;      // maintain contour to insert block efficiently
 
     // DEBUG FUNCTIONS // for w and l given.

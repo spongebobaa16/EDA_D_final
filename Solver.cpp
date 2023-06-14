@@ -323,7 +323,7 @@ float Solver::calculate_totalcost()
     }
     // cout<<"HPWL: "<<HPWL<<endl;
 
-    return A + HPWL; //////////////////////////////////////////////
+    return 0.3*A + 0.7*HPWL; //////////////////////////////////////////////
 }
 
 void Solver::printModules()
