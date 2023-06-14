@@ -137,6 +137,7 @@ void Solver::readFile_givenWL(const char *filename)
 void Solver::floorplan(B_Tree t, bool isFixedMode)
 {
     // cout << endl;
+    Contour_H.clear();
     placeBlock(t.root, 0, isFixedMode);
 }
 
@@ -172,7 +173,9 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode =
         {
             Coord root_loc(0, 0);
             Modules[node->index]->location = root_loc;
-            Yloc = findY(node->index, root_loc.x, Modules[node->index]->width);
+            from_x = root_loc.x;
+            to_x = from_x + Modules[node->index]->width;
+            Yloc = findY(node->index, from_x, to_x);
             Coord *_assume = new Coord(root_loc.x, Yloc);
             // for (auto i : fixedModules)
             for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
@@ -513,7 +516,7 @@ int Solver::findYandUpdateContour_H(int index, int from_x, int to_x)
     */
 }
 
-bool Solver::checkOverlap(bool _toPlaceLeft)
+bool Solver::checkOverlap()
 {
     for (auto fixModule : fixedModules)
     {
@@ -584,6 +587,7 @@ void Solver::outputFloorPlan(bool isPrePlaced)
         fout.open("floorplan.txt");
     else
         fout.open("floorplan_before.txt");
+    cout << "outputFloorPlanning..." << endl;
     fout << chip_width << " " << chip_height << " " << Modules.size() << endl;
     for (int i = 0; i < Modules.size(); i++)
     {

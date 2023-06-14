@@ -46,7 +46,7 @@ public:
     void outputFloorPlan(bool isPrePlaced = 1);
     // to the rightmost end of B* tree, either right/left, depends on _toPlaceLeft = 0 / 1
     //  current solution : if overlap -> SA again  (since overlap doesn't happen that frequently)
-    bool checkOverlap(bool _toPlaceLeft);
+    bool checkOverlap();
 };
 
 #endif

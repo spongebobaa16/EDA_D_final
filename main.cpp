@@ -21,26 +21,28 @@ int main(int argc, char *argv[])
     // float T0=t.initialTemp(s);
     // cout<<"yayyyyy: "<<T0<<endl;
     // t.printTree();
-    t.SA(s);
+    // t.SA(s);
 
-    t.printTree();
-    s.floorplan(t, 0);
+    // t.printTree();
+    // s.floorplan(t, 0);
     // bool _first = 1;
-    // do
-    // {
-    //     do
-    //     {
-    //         t.SA(s);
-    //         // t.printTree();
-    //         // if (!_first)
-    //         //     t.checkOverlap(s, 1);
-    //         // _first = 0;
-    //     } while (!t.prePlacedModule(s));
-    //     s.floorplan(t, 1);
-    // } while (!t.checkOverlap(s, 1));
-    t.printTree();
-    t.prePlacedModule(s);
-    s.floorplan(t, 1);
+    do
+    {
+        do
+        {
+            t.SA(s);
+            t.printTree();
+            // if (!_first)
+            //     t.checkOverlap(s, 1);
+            // _first = 0;
+        } while (!t.prePlacedModule(s));
+        t.printTree();
+        s.floorplan(t, 1);
+    } while (!s.checkOverlap());
+    // t.printTree();
+    // t.prePlacedModule(s);
+    // t.printTree();
+    // s.floorplan(t, 1);
     s.outputFloorPlan();
 
     //     do
