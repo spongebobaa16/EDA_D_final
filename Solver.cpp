@@ -136,6 +136,23 @@ void Solver::floorplan(B_Tree t, bool isFixedMode)
 {
     // cout << endl;
     placeBlock(t.root, 0, isFixedMode);
+    IsOutofChip();
+}
+
+void Solver::IsOutofChip()
+{
+    int l = Contour_H.size();
+    for (int i = 0; i < l; i++)
+    {
+        // cout<<Contour_H[i].til_x<<" "<<Contour_H[i].height<<endl;
+        if(Contour_H[i].height>chip_height){
+            OutofChip_y=true;
+            break;
+        }
+    }
+    if(Contour_H[l-1].til_x>chip_height)
+        OutofChip_x=true;
+
 }
 
 void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode = 1 when we really want to treat fixed block as pre-placed module
@@ -377,11 +394,15 @@ float Solver::calculate_totalcost()
     float A = 0; // area of the current floorplan
     HPWL = 0;
     int prev_til_x = 0;
+    int highest=0;
 
     int l = Contour_H.size();
     for (int i = 0; i < l; i++)
     {
         // cout<<Contour_H[i].til_x<<" "<<Contour_H[i].height<<endl;
+        if(Contour_H[i].height>highest)
+            highest=Contour_H[i].height;
+
         A += (Contour_H[i].til_x - prev_til_x) * Contour_H[i].height;
         prev_til_x = Contour_H[i].til_x;
     }
@@ -393,8 +414,8 @@ float Solver::calculate_totalcost()
         HPWL += (abs((Modules[Connections[i].index_name1]->location.x + double(Modules[Connections[i].index_name1]->width) / 2) - (Modules[Connections[i].index_name2]->location.x + double(Modules[Connections[i].index_name2]->width) / 2)) + abs((Modules[Connections[i].index_name1]->location.y + double(Modules[Connections[i].index_name1]->height) / 2) - (Modules[Connections[i].index_name2]->location.y + double(Modules[Connections[i].index_name2]->height) / 2))) * Connections[i].pin_Number;
     }
     // cout<<"HPWL: "<<HPWL<<endl;
-
-    return 0.3 * A + 0.7 * HPWL; //////////////////////////////////////////////
+    //cout<<0.3 * A<<" "<<0.7 * HPWL<<" "<<2*(Contour_H[Contour_H.size()-1].til_x-chip_width)<<" "<<2*(highest-chip_height)<<endl;
+    return 0.3 * A + 0.7 * HPWL + 2*(Contour_H[Contour_H.size()-1].til_x-chip_width) + 2*(highest-chip_height); //////////////////////////////////////////////
 }
 
 void Solver::printModules()

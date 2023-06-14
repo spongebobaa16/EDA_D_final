@@ -16,7 +16,7 @@ using namespace std;
 class Solver
 {
 public:
-    Solver() {}
+    Solver() {OutofChip_y=false; OutofChip_x=false;}
     ~Solver() {}
 
     void readFile(const char *);
@@ -26,9 +26,12 @@ public:
     float calculate_totalcost();                                        // calculate floorplan's total cost
     int findYandUpdateContour_H(int index, int from_x, int to_x);       // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
     int findYandUpdateContour_H_fixed(int index, int from_x, int to_x); // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
+    void IsOutofChip();
 
     int                         chip_width;     // input info
     int                         chip_height;    // input info
+    bool                        OutofChip_y;
+    bool                        OutofChip_x;
     float                       HPWL; 
     unordered_map<string, int>  U_Name_Index;   // for all modules
     vector<Module*>             Modules;        // input info, for both soft and fixed modules
