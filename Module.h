@@ -62,28 +62,28 @@ public:
             return (_point.x > _assume->x && _point.x < (_assume->x + width)) && (_point.y > _assume->y && _point.y < (_assume->y + height));
     }
     // https://www.geeksforgeeks.org/find-two-rectangles-overlap/
-    // bool isOverlap(Module *_fixed, Coord *_assume = 0)
-    // {
-    //     Coord rbf(_fixed->fix_location.x + _fixed->width, _fixed->fix_location.y),
-    //         ltf(_fixed->fix_location.x, _fixed->fix_location.y + _fixed->height);
-    //     Coord rbthis((_assume == 0 ? location.x + width : _assume->x + width), (_assume == 0 ? location.y : _assume->y)),
-    //         ltthis((_assume == 0 ? location.x : _assume->x), (_assume == 0 ? location.y + height : _assume->y + height));
-    //     // if rectangle has area 0, no overlap
-    //     if (ltthis.x == rbthis.x || ltthis.y == rbthis.y || ltf.x == rbf.x || ltf.y == rbf.y)
-    //         return false;
+    bool isOverlap(Module *_fixed, Coord *_assume = 0)
+    {
+        Coord rbf(_fixed->fix_location.x + _fixed->width, _fixed->fix_location.y),
+            ltf(_fixed->fix_location.x, _fixed->fix_location.y + _fixed->height);
+        Coord rbthis((_assume == 0 ? location.x + width : _assume->x + width), (_assume == 0 ? location.y : _assume->y)),
+            ltthis((_assume == 0 ? location.x : _assume->x), (_assume == 0 ? location.y + height : _assume->y + height));
+        // if rectangle has area 0, no overlap
+        if (ltthis.x == rbthis.x || ltthis.y == rbthis.y || ltf.x == rbf.x || ltf.y == rbf.y)
+            return false;
 
-    //     // If one rectangle is on left side of other
-    //     if (ltthis.x >= rbf.x || ltf.x >= rbthis.x)
-    //         return false;
+        // If one rectangle is on left side of other
+        if (ltthis.x >= rbf.x || ltf.x >= rbthis.x)
+            return false;
 
-    //     // If one rectangle is above other
-    //     if (rbthis.y >= ltf.y || rbf.y >= ltthis.y)
-    //         return false;
+        // If one rectangle is above other
+        if (rbthis.y >= ltf.y || rbf.y >= ltthis.y)
+            return false;
 
-    //     return true;
-    // }
+        return true;
+    }
 
-    bool isOverlap(Module *_fixed, Coord *_assume = 0) // _assume is to check if i placed this module at _assume, will overlap happens?
+    /*bool isOverlap(Module *_fixed, Coord *_assume = 0) // _assume is to check if i placed this module at _assume, will overlap happens?
     {                                                  // right_bottom corner, left top corner, right top corner
         Coord rb(_fixed->fix_location.x + _fixed->width, _fixed->fix_location.y),
             lt(_fixed->fix_location.x, _fixed->fix_location.y + _fixed->height), rt(_fixed->fix_location.x + _fixed->width, _fixed->fix_location.y + _fixed->height);
@@ -116,7 +116,7 @@ public:
         // return coordWithin(_fixed->fix_location, _assume) || coordWithin(rb, _assume) || coordWithin(lt, _assume) || coordWithin(rt, _assume);
         return 0;
         // return coordWithin(_fixed->fix_location, _assume) || coordWithin(rb, _assume) || coordWithin(lt, _assume) || coordWithin(rt, _assume);
-    }
+    }*/
 };
 
 #endif
