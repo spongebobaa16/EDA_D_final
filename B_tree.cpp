@@ -1,6 +1,9 @@
+#include <stdio.h>
+#include <string.h>
 #include "B_tree.h"
 #include "Solver.h"
 #include "util.h"
+#include <unistd.h>
 #define N 10
 #define P 0.99
 #define K 10
@@ -237,43 +240,110 @@ void B_Tree::move(int index1, int index2, bool parent_left, bool child_left)
     insert(index1, index2, parent_left, child_left);
 }
 
+void B_Tree::copyTree(vector<Node *> &a, int size)
+{ // copy nodes in Tree_vec to a
+    for (int i = 0; i < size; ++i)
+    {
+        // memmove(a[i], Tree_vec[i], sizeof(Node));
+        a[i]->parent = Tree_vec[i]->parent;
+        a[i]->left = Tree_vec[i]->left;
+        a[i]->right = Tree_vec[i]->right;
+        a[i]->index = Tree_vec[i]->index;
+        a[i]->_isRotated = Tree_vec[i]->_isRotated;
+        a[i]->WHtype = Tree_vec[i]->WHtype;
+    }
+    // cout<<endl;
+    return;
+}
+
+void B_Tree::returnTree(vector<Node *> a, int size)
+{ // return nodes in a to Tree_vec
+    for (int i = 0; i < size; ++i)
+    {
+        // memmove(Tree_vec[i], a[i], sizeof(Node));
+        Tree_vec[i]->parent = a[i]->parent;
+        Tree_vec[i]->left = a[i]->left;
+        Tree_vec[i]->right = a[i]->right;
+        Tree_vec[i]->index = a[i]->index;
+        Tree_vec[i]->_isRotated = a[i]->_isRotated;
+        Tree_vec[i]->WHtype = a[i]->WHtype;
+    }
+    // cout<<endl;
+    // cout<<"finish ";
+    // cout.flush();
+    return;
+}
+
 void B_Tree::SA(Solver &s)
 {
-    vector<Node *> best = Tree_vec;
-    // vector<Node *> best;
-    // best.assign(Tree_vec.begin(), Tree_vec.end());
-    vector<Node *> temp_best = Tree_vec;
-    s.floorplan(*this);
-    float temp_cost = s.calculate_totalcost();
-    float best_cost = temp_cost;
-    s.Contour_H.clear();
     float new_cost = 0, delta_c;
 
     const int n = K * s.Modules.size(); // total number of uphill moves
     float T0 = initialTemp(s);
-    float T = T0;
-    float nmoves = 0, uphill = 0, reject = 0, reject_ratio;
 
+    Node *best_root = root;
+    vector<Node *> best, prev;
+    for (int i = 0; i < s.Modules.size(); i++)
+    {
+        Node *newNode = new Node(i);
+        best.push_back(newNode);
+    }
+    for (int i = 0; i < s.Modules.size(); i++)
+    {
+        Node *newNode = new Node(i);
+        prev.push_back(newNode);
+    }
+
+    copyTree(best, s.Modules.size());
+    copyTree(prev, s.Modules.size());
+
+    s.floorplan(*this);
+    float prev_cost = s.calculate_totalcost();
+    float best_cost = prev_cost;
+
+    float T = T0;
+    float nmoves, uphill, reject, reject_ratio;
+    int k = 0;
+    // cout<<"what???"<<endl;
     do
     {
-        while (uphill < n && nmoves <= 2 * n)
+        nmoves = 0;
+        uphill = 0;
+        reject = 0;
+        // cout<<"fuck"<<endl;
+        do
         {
             new_cost = perturb(s);
-            delta_c = new_cost - temp_cost;
+            delta_c = new_cost - prev_cost;
 
             if (delta_c <= 0)
-            { // down-hill move
-                temp_best = Tree_vec;
-                temp_cost = new_cost;
+            { // down-hill movep
+                // cout << "downhill" << new_cost << " " << prev_cost<< endl;
+                if (new_cost < best_cost)
+                {
+                    copyTree(best, s.Modules.size());
+
+                    // printTree();
+                    // returnTree(best, s.Modules.size());
+                    best_root = root;
+                    // printTree();
+                    // return;
+
+                    best_cost = new_cost;
+                    // cout<<"best cost: "<<best_cost<<endl;
+                }
+                copyTree(prev, s.Modules.size());
+                prev_cost = new_cost;
                 // cout << "DOWN HILLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL" << endl;
             }
             else
-            { // uphill move
-                if (accept(delta_c, T))
-                { // decide if we should accept the new tree
+            {                           // uphill move
+                if (accept(delta_c, T)) // decide if we should accept the new tree
+                {
+                    // cout << "uphill" << new_cost << " " << prev_cost << endl;
                     // cout << "UPHILL ACCEPTEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD" << endl;
-                    temp_best = Tree_vec;
-                    temp_cost = new_cost;
+                    copyTree(prev, s.Modules.size());
+                    prev_cost = new_cost;
                     uphill++;
                 }
                 else
@@ -283,24 +353,38 @@ void B_Tree::SA(Solver &s)
                 }
             }
 
-            if (new_cost < best_cost)
-            {
-                best = Tree_vec;
-                best_cost = new_cost;
-            }
-            // cout << "best cost: " << best_cost << endl;
             nmoves++;
-        }
+        } while (uphill < n && nmoves <= 2 * n);
 
         reject_ratio = reject / nmoves;
-        nmoves = 0;
-        uphill = 0;
-        T = T < lambdatf * T0 ? 0.1 * T : ratio * T;
-    } while (reject_ratio <= 0.95 && T >= epsilon);
-    // cout << "reject: " << reject << endl;
-    // cout << "nmoves: " << nmoves << endl;
 
-    Tree_vec = best;
+        if (k == 20)
+            T = 0.6 * T0;
+        else
+            T = ratio * T;
+        // T=T<lambdatf*T0 ? 0.1*T : ratio*T;
+
+        k++;
+
+    } while (reject_ratio <= 0.95 && T >= epsilon);
+    cout << "reject: " << reject << endl;
+    cout << "nmoves: " << nmoves << endl;
+
+    returnTree(best, s.Modules.size());
+    root = best_root;
+    cout << "root: m" << root->index + 1 << endl;
+    s.Contour_H.clear();
+    s.floorplan(*this);
+    float cost = s.calculate_totalcost();
+
+    cout << "best cost: " << best_cost << endl;
+    cout << "calculate: " << cost << endl;
+    cout << "HPWL: " << s.HPWL << endl;
+    s.Contour_H.clear();
+    // for(auto i:Tree_vec)
+    //     cout<<i->index<<endl;
+    // exit(0);
+    // printTree();
 }
 
 bool B_Tree::accept(int delta_c, float T)
@@ -383,7 +467,7 @@ float B_Tree::initialTemp(Solver &s)
 
     float c_avg = uphill_cost / uphill_times; // calculates average difference of uphill moves
     float T0 = -c_avg / log(P);               // calculates initial temperature based on this formula, P being the initial probability of uphill moves
-    // cout << "initial temp: " << T0 << endl;
+    cout << "initial temperature: " << T0 << endl;
     return T0;
 }
 // if fixed module is placed later, might overlap with other

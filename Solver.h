@@ -27,13 +27,14 @@ public:
     int findYandUpdateContour_H(int index, int from_x, int to_x);       // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
     int findYandUpdateContour_H_fixed(int index, int from_x, int to_x); // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
 
-    int chip_width;                          // input info
-    int chip_height;                         // input info
-    unordered_map<string, int> U_Name_Index; // for all modules
-    vector<Module *> Modules;                // input info, for both soft and fixed modules
-    vector<Node *> Nodes;                    // store every Node*'s info, for search convenience
-    vector<Connection> Connections;          // input info
-    vector<Contour_horizontal> Contour_H;    // maintain contour to insert block efficiently
+    int                         chip_width;     // input info
+    int                         chip_height;    // input info
+    float                       HPWL; 
+    unordered_map<string, int>  U_Name_Index;   // for all modules
+    vector<Module*>             Modules;        // input info, for both soft and fixed modules
+    vector<Node*>               Nodes;          // store every Node*'s info, for search convenience
+    vector<Connection>          Connections;    // input info
+    vector<Contour_horizontal>  Contour_H;      // maintain contour to insert block efficiently
     // vector<Contour_vertical>    Contour_V;      // maintain contour to insert block efficiently
 
     // DEBUG FUNCTIONS // for w and l given.
