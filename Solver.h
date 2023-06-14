@@ -32,6 +32,8 @@ public:
     int                         chip_height;    // input info
     bool                        OutofChip_y;
     bool                        OutofChip_x;
+    int                         num_softmodules;
+    int                         num_fixedmodules;
     float                       HPWL; 
     unordered_map<string, int>  U_Name_Index;   // for all modules
     vector<Module*>             Modules;        // input info, for both soft and fixed modules
@@ -45,6 +47,7 @@ public:
     void printModules();
     void printLocations();
     void outputFloorPlan(bool isPrePlaced = 1);
+    void outputFloorPlanRect();
 };
 
 #endif

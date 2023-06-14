@@ -13,6 +13,7 @@ void Solver::readFile(const char *filename)
     chip_height = height;
 
     fin >> SOFTMODULE >> num_softmodule;
+    num_softmodules = num_softmodule;
     for (int i = 0; i < num_softmodule; i++)
     {
         fin >> moduleName >> area;
@@ -28,6 +29,7 @@ void Solver::readFile(const char *filename)
         Modules.push_back(newModule);
     }
     fin >> FIXEDMODULE >> num_fixedmodule;
+    num_fixedmodules = num_fixedmodule;
     for (int i = 0; i < num_fixedmodule; i++)
     {
         fin >> moduleName >> x_c >> y_c >> fixwidth >> fixheight;
@@ -449,6 +451,37 @@ void Solver::outputFloorPlan(bool isPrePlaced)
     fout << chip_width << " " << chip_height << " " << Modules.size() << endl;
     for (int i = 0; i < Modules.size(); i++)
     {
+        fout << Modules[i]->name << " " << Modules[i]->location.x << " " << Modules[i]->location.y << " " << Modules[i]->width << " " << Modules[i]->height << endl;
+    }
+    fout.close();
+}
+void Solver::outputFloorPlanRect()
+{
+    ofstream fout;
+    fout.open("floorplan.txt");
+    fout << chip_width << " " << chip_height << endl;
+    fout << "HPWL " << HPWL << endl;
+    fout << "SOFTMODULE " << num_softmodules << endl;
+    for (int i = 0; i < num_softmodules; i++){
+        if(Modules[i]->area == Modules[i]->width*Modules[i]->height){
+            fout << Modules[i]->name << " " << 4 << endl;
+            fout << Modules[i]->location.x                      << " " << Modules[i]->location.y                        << endl;
+            fout << Modules[i]->location.x                      << " " << Modules[i]->location.y + Modules[i]->height   << endl;
+            fout << Modules[i]->location.x + Modules[i]->width  << " " << Modules[i]->location.y + Modules[i]->height   << endl;
+            fout << Modules[i]->location.x + Modules[i]->width  << " " << Modules[i]->location.y                        << endl;
+        }
+        else{
+            fout << Modules[i]->name << " " << 6 << endl;
+            fout << Modules[i]->location.x                      << " " << Modules[i]->location.y << endl;
+            fout << Modules[i]->location.x                      << " " << Modules[i]->location.y + Modules[i]->height   << endl;
+            fout << Modules[i]->location.x + Modules[i]->width  << " " << Modules[i]->location.y + Modules[i]->height   << endl;
+            fout << Modules[i]->location.x + Modules[i]->width  << " " << Modules[i]->location.y + (Modules[i]->height*Modules[i]->width-Modules[i]->area) << endl;
+            fout << Modules[i]->location.x + Modules[i]->width-1<< " " << Modules[i]->location.y + (Modules[i]->height*Modules[i]->width-Modules[i]->area) << endl;
+            fout << Modules[i]->location.x + Modules[i]->width-1<< " " << Modules[i]->location.y << endl;            
+        }
+    }
+    fout << "FIXEDMODULE " << num_fixedmodules << endl;
+    for (int i = num_softmodules; i < Modules.size(); i++){
         fout << Modules[i]->name << " " << Modules[i]->location.x << " " << Modules[i]->location.y << " " << Modules[i]->width << " " << Modules[i]->height << endl;
     }
     fout.close();
