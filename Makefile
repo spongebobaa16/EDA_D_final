@@ -1,4 +1,4 @@
-floorplan: clean Solver.o B_tree.o main.o Module.o
+bin/floorplan: clean Solver.o B_tree.o main.o Module.o
 	g++ -o $@ -std=c++11 -g Solver.o B_tree.o Module.o main.o 
 
 Solver.o: Solver.cpp
