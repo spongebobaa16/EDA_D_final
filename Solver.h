@@ -27,10 +27,11 @@ public:
     // Width_Height    calculate_w_l(int area);            // calculate feasible width for area
     void floorplan(B_Tree t, bool &_enable, bool isFixedMode = 0, Node *_target = 0); // calculate floorplan with given B_Tree and Modules, change each Module's location property
     // _target node is for searching specific node(so i can ignore the node chronologically earlier found)
-    void placeBlock(Node *node, int type, bool isFixedMode, bool &_enable, Node *_target = 0); // floorplan(B_Tree t) will recursively call placeBlock with preorder, type: 0->root, 1->left, 2->right
-    float calculate_totalcost();                                                               // calculate floorplan's total cost
-    int findYandUpdateContour_H(int index, int from_x, int to_x);                              // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
-    int findYandUpdateContour_H_fixed(int index, int from_x, int to_x);                        // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
+    // change parent = 1 if the node's parent is fixed and it wants to change parent
+    void placeBlock(Node *node, int type, bool isFixedMode, bool changeParent = 0, Node *_target = 0); // floorplan(B_Tree t) will recursively call placeBlock with preorder, type: 0->root, 1->left, 2->right
+    float calculate_totalcost();                                                                       // calculate floorplan's total cost
+    int findYandUpdateContour_H(int index, int from_x, int to_x);                                      // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
+    int findYandUpdateContour_H_fixed(int index, int from_x, int to_x);                                // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
     void IsOutofChip();
     int findY(int index, int from_x, int to_x);
     int UpdateContour_H(int index, int from_x, int to_x, Module *fixedBlock = 0); // fixedBlock != 0 -> update contour to its height

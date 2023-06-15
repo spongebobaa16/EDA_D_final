@@ -563,10 +563,10 @@ bool B_Tree::prePlacedModule(Solver &s) // fixed module is root???  // if the pl
         exchangableNode(s, firstDominatedNode, fixedNode, D, (Tree_vec[i->index] == root ? 0 : (_prev->isLeftChild() ? 2 : 1))); // from which subtree -> search the other
         if (D.empty())
             return 0;
-        // // cout << "D = \n";
+        // cout << "D = \n";
         // for (auto j : D)
-        //     // cout << j->index << ' ';
-        // // cout << endl;
+        //     cout << j->index << ' ';
+        // cout << endl;
         int closestDistance = 2147483647, closestIndex = -1;
         for (auto j : D)
         {

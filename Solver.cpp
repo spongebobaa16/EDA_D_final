@@ -162,7 +162,7 @@ void Solver::IsOutofChip()
         OutofChip_x = true;
 }
 
-void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool &_enable, Node *_target) // isFixedMode = 1 when we really want to treat fixed block as pre-placed module
+void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool changeParent, Node *_target) // isFixedMode = 1 when we really want to treat fixed block as pre-placed module
 {
     // if (node == _target)
     //     _enable = 1;
@@ -176,6 +176,24 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool &_enable, N
     if (node->isRotated() && !Modules[node->index]->fixed) // do not rotate the fixed block
         Modules[node->index]->rotate();
     int from_x = 0, to_x = 0, Yloc = 0;
+    Node *_parent = node->parent;
+    if (isFixedMode && node->parent != 0) // skip those fixed and placed module for those non-root node
+    {
+        bool _isretParentfixednPlaced = 0;
+        bool isLeftChild = node->getParent(Modules, _parent, _isretParentfixednPlaced);
+        if (_parent->parent == 0 && Modules[_parent->index]->fixed_status == 3) // if _parent is root and _parent is fixed & placed
+        {
+            // cout << "change to type 0 !!!!\n";
+            type = 0;
+        }
+        else if (_parent != node->parent)
+        {
+            if (isLeftChild)
+                type = 1;
+            else
+                type = 2;
+        }
+    }
     // for (auto i : Contour_H)
     //     cout << "( " << i.height << " , " << i.til_x << " )"
     //          << " ; ";
@@ -241,7 +259,7 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool &_enable, N
             }
             else if (isFixedMode)
             {
-                from_x = Modules[node->parent->index]->location.x + Modules[node->parent->index]->width;
+                from_x = Modules[_parent->index]->location.x + Modules[_parent->index]->width;
                 to_x = from_x + Modules[node->index]->width;
                 // Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
                 Yloc = findY(node->index, from_x, to_x);
@@ -284,7 +302,7 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool &_enable, N
             }
             else if (isFixedMode)
             {
-                from_x = Modules[node->parent->index]->location.x;
+                from_x = Modules[_parent->index]->location.x;
                 to_x = from_x + Modules[node->index]->width;
                 Yloc = findY(node->index, from_x, to_x);
                 Coord *_assume = new Coord(from_x, Yloc);
@@ -315,8 +333,8 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool &_enable, N
     }
     // if (Modules[node->index]->fixed)
     //     cout << "fixed Module's location = " << Modules[node->index]->location.x << ' ' << Modules[node->index]->location.y << endl;
-    placeBlock(node->left, 1, isFixedMode, _enable, _target);
-    placeBlock(node->right, 2, isFixedMode, _enable, _target);
+    placeBlock(node->left, 1, isFixedMode, changeParent, _target);
+    placeBlock(node->right, 2, isFixedMode, changeParent, _target);
 }
 
 int Solver::findYandUpdateContour_H_fixed(int index, int from_x, int to_x)
