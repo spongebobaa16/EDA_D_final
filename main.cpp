@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <ctime>
+#include <string>
 #include "Solver.h"
 #include "Module.h"
 #include "B_tree.h"
@@ -37,7 +38,7 @@ int main(int argc, char *argv[])
         {
             s.resetFixedStatus();
             t.SA(s);
-            t.printTree();
+            // t.printTree();
             // if (!_first)
             //     t.checkOverlap(s, 1);
             // _first = 0;
@@ -51,9 +52,17 @@ int main(int argc, char *argv[])
     t.printTree();
     t.printTreePreorder(s, t.root);
     cout << endl;
+    // cout << "who do you wonder ? " << endl;
+    // string _s;
+    // cin >> _s;
+    // Node *_Ret;
+    // bool re = 0;
+    // cout << t.Tree_vec[stoi(_s)]->getParent(s.Modules, _Ret, re) << ' ';
+    // cout << _Ret->index << (re ? "true" : "false") << endl;
+
     // s.floorplan(t, 1);
-    // s.outputFloorPlan();
-    s.outputFloorPlanRect();
+    s.outputFloorPlan();
+    // s.outputFloorPlanRect();
     cout << '\a' << endl;
     //     do
     //     {

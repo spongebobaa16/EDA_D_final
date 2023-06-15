@@ -3,6 +3,7 @@
 #define B_TREE_H
 #include <vector>
 #include <iostream>
+#include "Module.h"
 using namespace std;
 
 // https://www.cprogramming.com/tutorial/lesson18.html
@@ -38,6 +39,24 @@ public:
         }
         return _depth;
     }
+    bool getParent(vector<Module *> &_v, Node *&_ret, bool &_isretFixednplaced) // to obtain the first non-fixed parent // return true if as if this's "parent"'s left child
+    {
+        Node *_it = parent, *_prev = this; // _prev is to record which subtree does fixed node climb up from
+        while (_it != 0)
+        {
+            if (!(_v[_it->index]->fixed && _v[_it->index]->fixed_status == 3)) // only skip those fixed and placed module
+            {
+                break;
+            }
+            if (_it->parent == 0) // i.e., _it == root
+                break;
+            _prev = _it;
+            _it = _it->parent;
+        }
+        _ret = _it;
+        _isretFixednplaced = (_v[_ret->index]->fixed_status == 3);
+        return (_prev->isLeftChild());
+    }
     Node *parent;
     Node *left;
     Node *right;
@@ -63,8 +82,8 @@ public:
     // for SA
     void rotate(int index) { Tree_vec[index]->rotate(); };
     void changeWH(int index) { Tree_vec[index]->changeWH(); } // call this will render a new width and height(if existed)
-    int Width(int i, const Solver& s);
-    int Height(int i, const Solver& s);
+    int Width(int i, const Solver &s);
+    int Height(int i, const Solver &s);
     void swap(int index1, int index2);
     void move(int index1, int index2, bool parent_left, bool child_left); // move index1 to index2's left(right) child, depends on child_left == 1(0)
     float perturb(Solver &s);
