@@ -16,7 +16,7 @@ using namespace std;
 class Solver
 {
 public:
-    Solver() {}
+    Solver() : chip(new Module()) {}
     ~Solver() {}
 
     void readFile(const char *);
@@ -34,6 +34,19 @@ public:
         for (auto i : fixedModules)
             i->fixed_status = 1;
     };
+    void restoreFixedNode(B_Tree &t)
+    {
+        bool rand1 = rand() % 2, rand2 = rand() % 2;
+        for (auto i : fixedModules)
+            t.insert(i->index, t.root->index, rand1, rand2);
+    }
+    void setChip()
+    {
+        chip->location.x = 0;
+        chip->location.y = 0;
+        chip->height = chip_height;
+        chip->width = chip_width;
+    }
     int chip_width;  // input info
     int chip_height; // input info
     float HPWL;
@@ -42,13 +55,14 @@ public:
     vector<Node *> Nodes;                    // store every Node*'s info, for search convenience
     vector<Connection> Connections;          // input info
     vector<Contour_horizontal> Contour_H;    // maintain contour to insert block efficiently
+    Module *chip;                            // to check if compact enough
     // vector<Contour_vertical>    Contour_V;      // maintain contour to insert block efficiently
 
     // DEBUG FUNCTIONS // for w and l given.
     void readFile_givenWL(const char *); // ONLY FOR DEBUGGING, GIVEN SOFT BLOCKS' WIDTH AND HEIGHT
     void printModules();
     void printLocations();
-    void outputFloorPlan(bool isPrePlaced = 1);
+    void outputFloorPlan(int isPrePlaced = 1);
     // to the rightmost end of B* tree, either right/left, depends on _toPlaceLeft = 0 / 1
     //  current solution : if overlap -> SA again  (since overlap doesn't happen that frequently)
     bool checkOverlap();

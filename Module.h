@@ -57,17 +57,31 @@ public:
     {
         return fix_location.x + fix_location.y;
     }
-    bool coordWithin(Coord _point, Coord *_assume)
+    bool coordWithin(Coord _point, Coord *_assume = 0)
     {
         if (_assume == 0)
         {
-            return (_point.x > location.x && _point.x < (location.x + width)) && (_point.y > location.y && _point.y < (location.y + height));
+            return (_point.x >= location.x && _point.x <= (location.x + width)) && (_point.y >= location.y && _point.y <= (location.y + height));
         }
         else
-            return (_point.x > _assume->x && _point.x < (_assume->x + width)) && (_point.y > _assume->y && _point.y < (_assume->y + height));
+            return (_point.x >= _assume->x && _point.x <= (_assume->x + width)) && (_point.y >= _assume->y && _point.y <= (_assume->y + height));
+    }
+
+    bool checkCompactness(vector<Module *> &_modules)
+    {
+        Coord p1(location.x + width / 4, location.y + height / 4), p2(location.x + 3 * width / 4, location.y + 3 * height / 4),
+            p3(location.x + 3 * width / 4, location.y + height / 4), p4(location.x + width / 4, location.y + 3 * height / 4);
+        int hit = 0;
+        for (auto j : _modules)
+        {
+            if (j->coordWithin(p1) || j->coordWithin(p2) || j->coordWithin(p3) || j->coordWithin(p4))
+                ++hit;
+        }
+        return hit >= 3;
     }
     // https://www.geeksforgeeks.org/find-two-rectangles-overlap/
-    bool isOverlap(Module *_fixed, Coord *_assume = 0)
+    bool
+    isOverlap(Module *_fixed, Coord *_assume = 0)
     {
         Coord rbf(_fixed->fix_location.x + _fixed->width, _fixed->fix_location.y),
             ltf(_fixed->fix_location.x, _fixed->fix_location.y + _fixed->height);

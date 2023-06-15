@@ -485,6 +485,7 @@ bool B_Tree::prePlacedModule(Solver &s) // fixed module is root???  // if the pl
     s.outputFloorPlan(0);
     // for (size_t i = s.Modules.size() - 1; i >= 0 && s.Modules[i]->fixed; --i)
     //     fixedModules.push_back(s.Modules[i]);
+    int cnt = 2;
     for (auto i : s.fixedModules)
     {
         Node *fixedNode = Tree_vec[i->index], *_it = fixedNode->parent, *firstDominatedNode = 0, *_prev = fixedNode; // _prev is to record which subtree does fixed node climb up from
@@ -529,6 +530,7 @@ bool B_Tree::prePlacedModule(Solver &s) // fixed module is root???  // if the pl
         i->fixed_status = 2; // turn fixed_status to "using"
         // s.placeBlock(root, 0, 1, _enable, Tree_vec[i->index]);
         s.floorplan((*this), _enable, 1, Tree_vec[i->index]); // cannot skip previous step!
+        // s.outputFloorPlan(cnt++);
     }
     return 1;
 }

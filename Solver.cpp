@@ -590,9 +590,24 @@ void Solver::printLocations()
         cout << " h: " << Modules[i]->height << endl;
     }
 }
-void Solver::outputFloorPlan(bool isPrePlaced)
+void Solver::outputFloorPlan(int isPrePlaced)
 {
     ofstream fout;
+    // switch (isPrePlaced)
+    // {
+    // case 0:
+    //     fout.open("floorplan_before.txt");
+    // case 1:
+    //     fout.open("floorplan.txt");
+    // case 2:
+    //     fout.open("floorplan_1.txt");
+    // case 3:
+    //     fout.open("floorplan_2.txt");
+    // case 4:
+    //     fout.open("floorplan_3.txt");
+    // case 5:
+    //     fout.open("floorplan_4.txt");
+    // }
     if (isPrePlaced)
         fout.open("floorplan.txt");
     else
