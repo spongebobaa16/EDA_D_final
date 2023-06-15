@@ -2,7 +2,6 @@
 #include <fstream>
 #include <cstdlib>
 #include <ctime>
-#include <string>
 #include "Solver.h"
 #include "Module.h"
 #include "B_tree.h"
@@ -24,10 +23,6 @@ int main(int argc, char *argv[])
     s.outputFloorPlan();
 
 /*
-    // float T0=t.initialTemp(s);
-    // cout<<"yayyyyy: "<<T0<<endl;
-    // t.printTree();
-    // t.SA(s);
 
     // t.printTree();
     // s.floorplan(t, 0);
