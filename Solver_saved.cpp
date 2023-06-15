@@ -58,8 +58,6 @@ void Solver::readFile(const char *filename)
     Contour_H.push_back(initContour);
     for (size_t i = Modules.size() - 1; i >= 0 && Modules[i]->fixed; --i)
         fixedModules.push_back(Modules[i]);
-    sort(fixedModules.begin(), fixedModules.end(), [](Module *a, Module *b)
-         { return a->manhattanDistance_fixed_orig() < b->manhattanDistance_fixed_orig(); });
 }
 
 void Solver::readFile_givenWL(const char *filename)
@@ -136,16 +134,16 @@ void Solver::readFile_givenWL(const char *filename)
 //     }
 // }
 
-void Solver::floorplan(B_Tree t, bool &_enable, bool isFixedMode) // _enable = 1 when we find the target node(...in dfs order we only have to ploorplan those who appears later )
+void Solver::floorplan(B_Tree t, bool isFixedMode)
 {
     // cout << endl;
     Contour_H.clear();
-    placeBlock(t.root, 0, isFixedMode, _enable);
+    placeBlock(t.root, 0, isFixedMode);
 }
 
-void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool &_enable) // isFixedMode = 1 when we really want to treat fixed block as pre-placed module
+void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode = 1 when we really want to treat fixed block as pre-placed module
 {
-    if (node == NULL || !_enable)
+    if (node == NULL)
         return;
     Modules[node->index]->changeWH(node->WHtype);
     // cout << "index:" << node->index  <<"\tWHtype: " << node->WHtype;
@@ -288,8 +286,8 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool &_enable) /
     }
     // if (Modules[node->index]->fixed)
     //     cout << "fixed Module's location = " << Modules[node->index]->location.x << ' ' << Modules[node->index]->location.y << endl;
-    placeBlock(node->left, 1, isFixedMode, _enable);
-    placeBlock(node->right, 2, isFixedMode, _enable);
+    placeBlock(node->left, 1, isFixedMode);
+    placeBlock(node->right, 2, isFixedMode);
 }
 
 int Solver::findYandUpdateContour_H_fixed(int index, int from_x, int to_x)

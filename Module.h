@@ -12,7 +12,7 @@ using namespace std;
 class Module
 {
 public:
-    Module() {}
+    Module() : fixed_status(1) {}
     ~Module() {}
 
     int index;          // self index for vector<Module> in Solver.h
@@ -24,6 +24,7 @@ public:
     Coord fix_location; // Bottom Left coordinate (x, y) of enclosing rectangle (fixed module's given location)
     vector<Coord> tour; // Each corner coordinate (x, y). For output (clockwise order)
     bool fixed;         // fixed: true,  soft: false
+    int fixed_status;   // 1 : unused, 2 : using, 3 : used
     vector<Width_Height> validWH;
     void calculate_w_l(int area);
     void rotate()
@@ -51,6 +52,10 @@ public:
     size_t manhattanDistance_LC(Module *_fixed) // manhattan distance between this and _n 's left down corner
     {
         return abs(location.x - _fixed->fix_location.x) + abs(location.y - _fixed->fix_location.y);
+    }
+    size_t manhattanDistance_fixed_orig() // manhattan distance between this's left down corner and origin
+    {
+        return fix_location.x + fix_location.y;
     }
     bool coordWithin(Coord _point, Coord *_assume)
     {
