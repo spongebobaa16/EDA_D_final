@@ -466,7 +466,7 @@ float B_Tree::perturb(Solver &s)
         bool parent_left;
         if (s.OutofChip_y)
             parent_left = (r > 0.2) ? true : false;
-        else if (s.OutofChip_y)
+        else if (s.OutofChip_x)
             parent_left = (r > 0.8) ? true : false;
         else
             parent_left = (r >= 0.5) ? true : false;

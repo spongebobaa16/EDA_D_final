@@ -17,7 +17,12 @@ int main(int argc, char *argv[])
     //  s.printModules();
     B_Tree t;
     t.create_tree(s);
+    
+    t.SA(s);
+    t.printTree();
+    s.outputFloorPlan();
 
+/*
     // float T0=t.initialTemp(s);
     // cout<<"yayyyyy: "<<T0<<endl;
     // t.printTree();
@@ -58,4 +63,5 @@ int main(int argc, char *argv[])
     //     } while (!t.prePlacedModule(s));
     //     s.floorplan(t);
     //     s.outputFloorPlan();
+    */
 }
