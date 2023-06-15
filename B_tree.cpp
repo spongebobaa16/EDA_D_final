@@ -240,6 +240,16 @@ void B_Tree::move(int index1, int index2, bool parent_left, bool child_left)
     insert(index1, index2, parent_left, child_left);
 }
 
+int B_Tree::Width(int i, const Solver &s)
+{
+    return s.Modules[Tree_vec[i]->index]->width;
+}
+
+int B_Tree::Height(int i, const Solver &s)
+{
+    return s.Modules[Tree_vec[i]->index]->height;
+}
+
 void B_Tree::copyTree(vector<Node *> &a, int size)
 { // copy nodes in Tree_vec to a
     for (int i = 0; i < size; ++i)
@@ -406,16 +416,61 @@ bool B_Tree::accept(int delta_c, float T)
 float B_Tree::perturb(Solver &s)
 {
     int op = rand() % 4 + 1;
+    // if (op == 1)
+    // {
+    //     int m1 = rand() % (s.Modules.size());
+    //     //cout << "op1: rotate " << m1 << endl;
+    //     rotate(m1);
+    //     // rotate(rand()%(s.Modules.size()));
+    // }
+    float r = ((float)rand() / (RAND_MAX));
     if (op == 1)
     {
         int m1 = rand() % (s.Modules.size());
-        // // cout << "op1: rotate " << m1 << endl;
-        rotate(m1);
-        // rotate(rand()%(s.Modules.size()));
+        if (s.OutofChip_y && ((Tree_vec[m1]->_isRotated && Width(m1, s) > Height(m1, s)) || (!Tree_vec[m1]->_isRotated && Width(m1, s) < Height(m1, s))))
+        {
+            if (r > 0.8)
+            {
+                rotate(m1);
+                // cout << "op1: rotate " << m1 << endl;
+            }
+        }
+        else if (s.OutofChip_x && ((Tree_vec[m1]->_isRotated && Width(m1, s) < Height(m1, s)) || (!Tree_vec[m1]->_isRotated && Width(m1, s) > Height(m1, s))))
+        {
+            if (r > 0.8)
+            {
+                rotate(m1);
+                // cout << "op1: rotate " << m1 << endl;
+            }
+        }
+        // cout << "op1: rotate " << m1 << endl;
+        else
+            rotate(m1);
     }
+    // else if (op == 2)
+    // {
+    //     bool parent_left = (rand() % 2 == 1) ? true : false;
+    //     bool child_left = (rand() % 2 == 1) ? true : false;
+    //     int m1 = rand() % (s.Modules.size());
+    //     int m2;
+    //     do
+    //     {
+    //         m2 = rand() % (s.Modules.size());
+    //     } while (m1 == m2);
+
+    //     //cout << "op2: move " << m1 << " to " << m2 << endl;
+    //     move(m1, m2, parent_left, child_left);
+    // }
     else if (op == 2)
     {
-        bool parent_left = (rand() % 2 == 1) ? true : false;
+        bool parent_left;
+        if (s.OutofChip_y)
+            parent_left = (r > 0.2) ? true : false;
+        else if (s.OutofChip_y)
+            parent_left = (r > 0.8) ? true : false;
+        else
+            parent_left = (r >= 0.5) ? true : false;
+
         bool child_left = (rand() % 2 == 1) ? true : false;
         int m1 = rand() % (s.Modules.size());
         int m2;
@@ -424,7 +479,7 @@ float B_Tree::perturb(Solver &s)
             m2 = rand() % (s.Modules.size());
         } while (m1 == m2);
 
-        // // cout << "op2: move " << m1 << " to " << m2 << endl;
+        // cout << "op2: move " << m1 << " to " << m2 << endl;
         move(m1, m2, parent_left, child_left);
     }
     else if (op == 3)

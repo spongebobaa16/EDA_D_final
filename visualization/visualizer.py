@@ -23,7 +23,8 @@ def visualize(positions, bounding_box, path="floorplan.png", title="Floorplan"):
     for i, rectlinear in enumerate(positions):
         color, fontcolor = get_color(i)
         if(not rectlinear["isFixed"]):
-            name_pos = int(len(rectlinear["info"]) / 2)
+            # name_pos = int(len(rectlinear["info"]) / 2)
+            name_pos = 1
             cnt = 1
             for rectangle in rectlinear["info"]:
                 r = patches.Rectangle(

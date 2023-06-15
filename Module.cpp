@@ -105,15 +105,17 @@ void Module::calculate_w_l(int area){
             return a.width*a.height < b.width*b.height;
         });
 
-        //test
+        // // test
         // for(Width_Height i: tmp){
         //     cout << "targetarea: " << area <<  "\tw: " <<  i.width << "\th: " << i.height << "\tarea: " << i.width*i.height << endl;
+        //     cout <<"B" << endl;
+        //     // if((i.width*i.height - area) > i.width) cout << "AAAA" << endl;
         // }
-
         validWH.push_back(tmp[0]);
         for(int i=1; i<tmp.size(); i++){
-            if(tmp[i].height != tmp[i-1].height && tmp[i].width != tmp[i-1].width){
+            if(tmp[i].height != tmp[i-1].height && tmp[i].width != tmp[i-1].width && (tmp[i].width*tmp[i].height - area) < tmp[i].width && (tmp[i].width*tmp[i].height - area) < tmp[i].height){
                 validWH.push_back(tmp[i]);
+                // cout << "targetarea: " << area <<  "\tw: " <<  tmp[i].width << "\th: " << tmp[i].height << "\tarea: " << tmp[i].width*tmp[i].height << endl;
             }
         }
         // cout << endl;

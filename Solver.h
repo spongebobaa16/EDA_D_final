@@ -16,7 +16,11 @@ using namespace std;
 class Solver
 {
 public:
-    Solver() : chip(new Module()) {}
+    Solver()
+    {
+        OutofChip_y = false;
+        OutofChip_x = false;
+    }
     ~Solver() {}
 
     void readFile(const char *);
@@ -27,6 +31,7 @@ public:
     float calculate_totalcost();                                                               // calculate floorplan's total cost
     int findYandUpdateContour_H(int index, int from_x, int to_x);                              // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
     int findYandUpdateContour_H_fixed(int index, int from_x, int to_x);                        // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
+    void IsOutofChip();
     int findY(int index, int from_x, int to_x);
     int UpdateContour_H(int index, int from_x, int to_x, Module *fixedBlock = 0); // fixedBlock != 0 -> update contour to its height
     void resetFixedStatus()
@@ -47,6 +52,10 @@ public:
         chip->height = chip_height;
         chip->width = chip_width;
     }
+    bool OutofChip_y;
+    bool OutofChip_x;
+    int num_softmodules;
+    int num_fixedmodules;
     int chip_width;  // input info
     int chip_height; // input info
     float HPWL;
@@ -66,6 +75,7 @@ public:
     // to the rightmost end of B* tree, either right/left, depends on _toPlaceLeft = 0 / 1
     //  current solution : if overlap -> SA again  (since overlap doesn't happen that frequently)
     bool checkOverlap();
+    void outputFloorPlanRect();
 };
 
 #endif

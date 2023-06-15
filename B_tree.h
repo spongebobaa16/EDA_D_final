@@ -63,6 +63,8 @@ public:
     // for SA
     void rotate(int index) { Tree_vec[index]->rotate(); };
     void changeWH(int index) { Tree_vec[index]->changeWH(); } // call this will render a new width and height(if existed)
+    int Width(int i, const Solver& s);
+    int Height(int i, const Solver& s);
     void swap(int index1, int index2);
     void move(int index1, int index2, bool parent_left, bool child_left); // move index1 to index2's left(right) child, depends on child_left == 1(0)
     float perturb(Solver &s);

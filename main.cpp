@@ -47,7 +47,8 @@ int main(int argc, char *argv[])
     t.printTreePreorder(s, t.root);
     cout << endl;
     // s.floorplan(t, 1);
-    s.outputFloorPlan();
+    // s.outputFloorPlan();
+    s.outputFloorPlanRect();
     cout << '\a' << endl;
     //     do
     //     {
