@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
             // _first = 0;
         } while (!t.prePlacedModule(s));
         t.printTree();
-        bool dummy = 1;
-        s.floorplan(t, dummy, 1);
+        // bool dummy = 1;
+        // s.floorplan(t, dummy, 1);
     } while (!s.checkOverlap());
     // t.printTree();
     // t.prePlacedModule(s);

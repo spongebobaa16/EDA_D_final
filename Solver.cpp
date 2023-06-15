@@ -136,15 +136,17 @@ void Solver::readFile_givenWL(const char *filename)
 //     }
 // }
 
-void Solver::floorplan(B_Tree t, bool &_enable, bool isFixedMode) // _enable = 1 when we find the target node(...in dfs order we only have to ploorplan those who appears later )
+void Solver::floorplan(B_Tree t, bool &_enable, bool isFixedMode, Node *_target) // _enable = 1 when we find the target node(...in dfs order we only have to ploorplan those who appears later )
 {
     // cout << endl;
     Contour_H.clear();
-    placeBlock(t.root, 0, isFixedMode, _enable);
+    placeBlock(t.root, 0, isFixedMode, _enable, _target);
 }
 
-void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool &_enable) // isFixedMode = 1 when we really want to treat fixed block as pre-placed module
+void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool &_enable, Node *_target) // isFixedMode = 1 when we really want to treat fixed block as pre-placed module
 {
+    if (node == _target)
+        _enable = 1;
     if (node == NULL || !_enable)
         return;
     Modules[node->index]->changeWH(node->WHtype);
@@ -159,137 +161,141 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool &_enable) /
     //     cout << "( " << i.height << " , " << i.til_x << " )"
     //          << " ; ";
     // cout << endl;
-    if (type == 0) // if fixed block is root???
-    {
-        if (Modules[node->index]->fixed && isFixedMode)
+    if (Modules[node->index]->fixed_status != 3)
+        if (type == 0) // if fixed block is root???
         {
-            from_x = Modules[node->index]->fix_location.x;
-            // cout << "from_x in type 0 = " << from_x << endl;
-            to_x = from_x + Modules[node->index]->width;
-            // Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
-            Yloc = Modules[node->index]->fix_location.y;
-            // Coord loc(from_x, Yloc);
-            // Modules[node->index]->location = loc;
-        }
-        else if (isFixedMode)
-        {
-            Coord root_loc(0, 0);
-            Modules[node->index]->location = root_loc;
-            from_x = root_loc.x;
-            to_x = from_x + Modules[node->index]->width;
-            Yloc = findY(node->index, from_x, to_x);
-            Coord *_assume = new Coord(root_loc.x, Yloc);
-            // for (auto i : fixedModules)
-            for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
+            if (Modules[node->index]->fixed && isFixedMode && Modules[node->index]->fixed_status == 2)
             {
-                if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                from_x = Modules[node->index]->fix_location.x;
+                // cout << "from_x in type 0 = " << from_x << endl;
+                to_x = from_x + Modules[node->index]->width;
+                // Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
+                Yloc = Modules[node->index]->fix_location.y;
+                Modules[node->index]->fixed_status = 3;
+                // Coord loc(from_x, Yloc);
+                // Modules[node->index]->location = loc;
+            }
+            else if (isFixedMode)
+            {
+                Coord root_loc(0, 0);
+                Modules[node->index]->location = root_loc;
+                from_x = root_loc.x;
+                to_x = from_x + Modules[node->index]->width;
+                Yloc = findY(node->index, from_x, to_x);
+                Coord *_assume = new Coord(root_loc.x, Yloc);
+                // for (auto i : fixedModules)
+                for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
                 {
-                    Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
-                    break;
-                }
-                else if (i == n - 1)
-                {
-                    Yloc = UpdateContour_H(node->index, from_x, to_x);
-                    break;
+                    if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                    {
+                        Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
+                        break;
+                    }
+                    else if (i == n - 1)
+                    {
+                        Yloc = UpdateContour_H(node->index, from_x, to_x);
+                        break;
+                    }
                 }
             }
-        }
-        else
-        {
-            Coord root_loc(0, 0);
-            Modules[node->index]->location = root_loc;
-            Yloc = findYandUpdateContour_H(node->index, 0, Modules[node->index]->width);
-        }
-        Coord loc(from_x, Yloc);
-        Modules[node->index]->location = loc;
-    }
-    else if (type == 1)
-    {
-        // int from_x = 0, to_x = 0, Yloc = 0;
-        if (Modules[node->index]->fixed && isFixedMode)
-        {
-            from_x = Modules[node->index]->fix_location.x;
-            // cout << "from_x in type 1 = " << from_x << endl;
-            to_x = from_x + Modules[node->index]->width;
-            // Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
-            Yloc = Modules[node->index]->fix_location.y;
-        }
-        else if (isFixedMode)
-        {
-            from_x = Modules[node->parent->index]->location.x + Modules[node->parent->index]->width;
-            to_x = from_x + Modules[node->index]->width;
-            // Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
-            Yloc = findY(node->index, from_x, to_x);
-            Coord *_assume = new Coord(from_x, Yloc);
-            // for (auto i : fixedModules)
-            for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
+            else
             {
-                if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                Coord root_loc(0, 0);
+                Modules[node->index]->location = root_loc;
+                Yloc = findYandUpdateContour_H(node->index, 0, Modules[node->index]->width);
+            }
+            Coord loc(from_x, Yloc);
+            Modules[node->index]->location = loc;
+        }
+        else if (type == 1)
+        {
+            // int from_x = 0, to_x = 0, Yloc = 0;
+            if (Modules[node->index]->fixed && isFixedMode && Modules[node->index]->fixed_status == 2)
+            {
+                from_x = Modules[node->index]->fix_location.x;
+                // cout << "from_x in type 1 = " << from_x << endl;
+                to_x = from_x + Modules[node->index]->width;
+                // Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
+                Yloc = Modules[node->index]->fix_location.y;
+                Modules[node->index]->fixed_status = 3;
+            }
+            else if (isFixedMode)
+            {
+                from_x = Modules[node->parent->index]->location.x + Modules[node->parent->index]->width;
+                to_x = from_x + Modules[node->index]->width;
+                // Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
+                Yloc = findY(node->index, from_x, to_x);
+                Coord *_assume = new Coord(from_x, Yloc);
+                // for (auto i : fixedModules)
+                for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
                 {
-                    Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
-                    break;
-                }
-                else if (i == n - 1)
-                {
-                    Yloc = UpdateContour_H(node->index, from_x, to_x);
-                    break;
+                    if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                    {
+                        Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
+                        break;
+                    }
+                    else if (i == n - 1)
+                    {
+                        Yloc = UpdateContour_H(node->index, from_x, to_x);
+                        break;
+                    }
                 }
             }
-        }
-        else
-        {
-            from_x = Modules[node->parent->index]->location.x + Modules[node->parent->index]->width;
-            to_x = from_x + Modules[node->index]->width;
-            Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
-        }
-        Coord loc(from_x, Yloc);
-        Modules[node->index]->location = loc;
-    }
-    else if (type == 2)
-    {
-        // int from_x = 0, to_x = 0, Yloc = 0;
-        if (Modules[node->index]->fixed && isFixedMode)
-        {
-            from_x = Modules[node->index]->fix_location.x;
-            // cout << "from_x in type 2 = " << from_x << endl;
-            to_x = from_x + Modules[node->index]->width;
-            // Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
-            Yloc = Modules[node->index]->fix_location.y;
-        }
-        else if (isFixedMode)
-        {
-            from_x = Modules[node->parent->index]->location.x;
-            to_x = from_x + Modules[node->index]->width;
-            Yloc = findY(node->index, from_x, to_x);
-            Coord *_assume = new Coord(from_x, Yloc);
-            // for (auto i : fixedModules)
-            for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
+            else
             {
-                if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                from_x = Modules[node->parent->index]->location.x + Modules[node->parent->index]->width;
+                to_x = from_x + Modules[node->index]->width;
+                Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
+            }
+            Coord loc(from_x, Yloc);
+            Modules[node->index]->location = loc;
+        }
+        else if (type == 2)
+        {
+            // int from_x = 0, to_x = 0, Yloc = 0;
+            if (Modules[node->index]->fixed && isFixedMode && Modules[node->index]->fixed_status == 2)
+            {
+                from_x = Modules[node->index]->fix_location.x;
+                // cout << "from_x in type 2 = " << from_x << endl;
+                to_x = from_x + Modules[node->index]->width;
+                // Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
+                Yloc = Modules[node->index]->fix_location.y;
+                Modules[node->index]->fixed_status = 3;
+            }
+            else if (isFixedMode)
+            {
+                from_x = Modules[node->parent->index]->location.x;
+                to_x = from_x + Modules[node->index]->width;
+                Yloc = findY(node->index, from_x, to_x);
+                Coord *_assume = new Coord(from_x, Yloc);
+                // for (auto i : fixedModules)
+                for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
                 {
-                    Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
-                    break;
-                }
-                else if (i == n - 1)
-                {
-                    Yloc = UpdateContour_H(node->index, from_x, to_x);
-                    break;
+                    if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                    {
+                        Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
+                        break;
+                    }
+                    else if (i == n - 1)
+                    {
+                        Yloc = UpdateContour_H(node->index, from_x, to_x);
+                        break;
+                    }
                 }
             }
+            else
+            {
+                from_x = Modules[node->parent->index]->location.x;
+                to_x = from_x + Modules[node->index]->width;
+                Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
+            }
+            Coord loc(from_x, Yloc);
+            Modules[node->index]->location = loc;
         }
-        else
-        {
-            from_x = Modules[node->parent->index]->location.x;
-            to_x = from_x + Modules[node->index]->width;
-            Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
-        }
-        Coord loc(from_x, Yloc);
-        Modules[node->index]->location = loc;
-    }
     // if (Modules[node->index]->fixed)
     //     cout << "fixed Module's location = " << Modules[node->index]->location.x << ' ' << Modules[node->index]->location.y << endl;
-    placeBlock(node->left, 1, isFixedMode, _enable);
-    placeBlock(node->right, 2, isFixedMode, _enable);
+    placeBlock(node->left, 1, isFixedMode, _enable, _target);
+    placeBlock(node->right, 2, isFixedMode, _enable, _target);
 }
 
 int Solver::findYandUpdateContour_H_fixed(int index, int from_x, int to_x)

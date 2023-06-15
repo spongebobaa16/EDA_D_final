@@ -525,6 +525,10 @@ bool B_Tree::prePlacedModule(Solver &s) // fixed module is root???  // if the pl
         // // cout << closestIndex << endl
         //      << endl;
         swap(i->index, closestIndex);
+        bool _enable = 0;
+        i->fixed_status = 2; // turn fixed_status to "using"
+        s.placeBlock(root, 0, 1, _enable, Tree_vec[i->index]);
+        // s.floorplan((*this), _enable, 1, Tree_vec[i->index]); // cannot clear the contour!!!!!!!!
     }
     return 1;
 }
