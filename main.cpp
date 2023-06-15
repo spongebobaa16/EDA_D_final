@@ -30,22 +30,25 @@ int main(int argc, char *argv[])
     {
         do
         {
+            s.resetFixedStatus();
             t.SA(s);
             t.printTree();
             // if (!_first)
             //     t.checkOverlap(s, 1);
             // _first = 0;
         } while (!t.prePlacedModule(s));
-        t.printTree();
+        // t.printTree();
         // bool dummy = 1;
         // s.floorplan(t, dummy, 1);
     } while (!s.checkOverlap());
     // t.printTree();
     // t.prePlacedModule(s);
-    // t.printTree();
+    t.printTree();
+    t.printTreePreorder(s, t.root);
+    cout << endl;
     // s.floorplan(t, 1);
     s.outputFloorPlan();
-
+    cout << '\a' << endl;
     //     do
     //     {
     //         t.SA(s);

@@ -78,7 +78,7 @@ public:
 
     //  Debug
     void
-    printTreePreorder(Node *node);
+    printTreePreorder(Solver &s, Node *node);
     void printTree(const string &prefix, Node *parent, bool isLeft, bool isRoot); // left subtree is on the top
 
     void printTree()

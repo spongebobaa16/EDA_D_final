@@ -561,7 +561,7 @@ void B_Tree::exchangableNode(Solver &s, Node *_node, Node *_fixed, vector<Node *
 //     return 1;
 // }
 
-void B_Tree::printTreePreorder(Node *node)
+void B_Tree::printTreePreorder(Solver &s, Node *node)
 { // for debug
     if (node == NULL)
     {
@@ -569,10 +569,11 @@ void B_Tree::printTreePreorder(Node *node)
     }
 
     // cout << node->index << " ";
-    if (node->parent != NULL)
-        cout << " parent: " << node->parent->index << endl;
-    else
-        cout << "NO parent" << endl;
+    cout << s.Modules[node->index]->name << ' ';
+    // if (node->parent != NULL)
+    //     cout << " parent: " << node->parent->index << endl;
+    // else
+    //     cout << "NO parent" << endl;
     printTreePreorder(node->left);
     printTreePreorder(node->right);
 }

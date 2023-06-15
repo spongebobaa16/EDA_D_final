@@ -527,8 +527,8 @@ bool B_Tree::prePlacedModule(Solver &s) // fixed module is root???  // if the pl
         swap(i->index, closestIndex);
         bool _enable = 0;
         i->fixed_status = 2; // turn fixed_status to "using"
-        s.placeBlock(root, 0, 1, _enable, Tree_vec[i->index]);
-        // s.floorplan((*this), _enable, 1, Tree_vec[i->index]); // cannot clear the contour!!!!!!!!
+        // s.placeBlock(root, 0, 1, _enable, Tree_vec[i->index]);
+        s.floorplan((*this), _enable, 1, Tree_vec[i->index]); // cannot skip previous step!
     }
     return 1;
 }
@@ -565,7 +565,7 @@ void B_Tree::exchangableNode(Solver &s, Node *_node, Node *_fixed, vector<Node *
 //     return 1;
 // }
 
-void B_Tree::printTreePreorder(Node *node)
+void B_Tree::printTreePreorder(Solver &s, Node *node)
 { // for debug
     if (node == NULL)
     {
@@ -573,12 +573,15 @@ void B_Tree::printTreePreorder(Node *node)
     }
 
     // cout << node->index << " ";
-    if (node->parent != NULL)
-        cout << " parent: " << node->parent->index << endl;
-    else
-        cout << "NO parent" << endl;
-    printTreePreorder(node->left);
-    printTreePreorder(node->right);
+    cout << s.Modules[node->index]->name << ' ';
+
+    // // cout << node->index << " ";
+    // if (node->parent != NULL)
+    //     cout << " parent: " << node->parent->index << endl;
+    // else
+    //     cout << "NO parent" << endl;
+    printTreePreorder(s, node->left);
+    printTreePreorder(s, node->right);
 }
 
 void B_Tree::printTree(const string &prefix, Node *parent, bool isLeft, bool isRoot)

@@ -145,9 +145,9 @@ void Solver::floorplan(B_Tree t, bool &_enable, bool isFixedMode, Node *_target)
 
 void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool &_enable, Node *_target) // isFixedMode = 1 when we really want to treat fixed block as pre-placed module
 {
-    if (node == _target)
-        _enable = 1;
-    if (node == NULL || !_enable)
+    // if (node == _target)
+    //     _enable = 1;
+    if (node == NULL)
         return;
     Modules[node->index]->changeWH(node->WHtype);
     // cout << "index:" << node->index  <<"\tWHtype: " << node->WHtype;
@@ -162,6 +162,7 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool &_enable, N
     //          << " ; ";
     // cout << endl;
     if (Modules[node->index]->fixed_status != 3)
+    {
         if (type == 0) // if fixed block is root???
         {
             if (Modules[node->index]->fixed && isFixedMode && Modules[node->index]->fixed_status == 2)
@@ -292,6 +293,7 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool &_enable, N
             Coord loc(from_x, Yloc);
             Modules[node->index]->location = loc;
         }
+    }
     // if (Modules[node->index]->fixed)
     //     cout << "fixed Module's location = " << Modules[node->index]->location.x << ' ' << Modules[node->index]->location.y << endl;
     placeBlock(node->left, 1, isFixedMode, _enable, _target);
