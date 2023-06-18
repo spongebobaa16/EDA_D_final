@@ -10,6 +10,7 @@
 #include <iostream>
 #include <cmath>
 #include <iomanip>
+#include <limits>
 
 using namespace std;
 
@@ -20,6 +21,10 @@ public:
     {
         OutofChip_y = false;
         OutofChip_x = false;
+        A_min=numeric_limits<float>::max();
+        A_max=0.0;
+        HPWL_min=numeric_limits<float>::max();
+        HPWL_max=0.0;
     }
     ~Solver() {}
 
@@ -29,7 +34,8 @@ public:
     // _target node is for searching specific node(so i can ignore the node chronologically earlier found)
     // change parent = 1 if the node's parent is fixed and it wants to change parent
     void placeBlock(Node *node, int type, bool isFixedMode, bool changeParent = 0, Node *_target = 0); // floorplan(B_Tree t) will recursively call placeBlock with preorder, type: 0->root, 1->left, 2->right
-    float calculate_totalcost();                                                                       // calculate floorplan's total cost
+    float calculate_totalcost(float alpha, float beta);                                                                       // calculate floorplan's total cost
+    void calculate_area_wirelength();
     int findYandUpdateContour_H(int index, int from_x, int to_x);                                      // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
     int findYandUpdateContour_H_fixed(int index, int from_x, int to_x);                                // return Y coordinate for block and maintain vector Contour_H, from_x~to_x is the x range this block is going to placed
     void IsOutofChip();
@@ -55,11 +61,21 @@ public:
     }
     bool OutofChip_y;
     bool OutofChip_x;
+    int floorplan_y;
+    int floorplan_x;
     int num_softmodules;
     int num_fixedmodules;
     int chip_width;  // input info
     int chip_height; // input info
-    float HPWL;
+    float A; // area of the current floorplan
+    float HPWL; // wirelength of the current floorplan
+    float A_norm; //for SA cost function
+    float HPWL_norm; //for SA cost function
+    float A_min;
+    float A_max;
+    float HPWL_min;
+    float HPWL_max;
+    
     unordered_map<string, int> U_Name_Index; // for all modules
     vector<Module *> Modules, fixedModules;  // input info, for both soft and fixed modules // fixedModules is for fix module only
     vector<Node *> Nodes;                    // store every Node*'s info, for search convenience

@@ -86,9 +86,12 @@ public:
     int Height(int i, const Solver &s);
     void swap(int index1, int index2);
     void move(int index1, int index2, bool parent_left, bool child_left); // move index1 to index2's left(right) child, depends on child_left == 1(0)
-    float perturb(Solver &s);
-    float initialTemp(Solver &s);
-    void SA(Solver &s);
+    void init_perturb(Solver &s);
+    float perturb(Solver &s, float alpha, float beta);
+    void initialTemp(Solver &s);
+    float T0;
+    void fastSA5(Solver &s, float beta);
+    void SA(Solver &s, float beta);
     bool accept(int delta_c, float T);
 
     void copyTree(vector<Node *> &a, int size);  // copy nodes in Tree_vec to a

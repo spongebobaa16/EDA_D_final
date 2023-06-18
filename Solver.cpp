@@ -148,18 +148,24 @@ void Solver::floorplan(B_Tree t, bool &_enable, bool isFixedMode, Node *_target)
 
 void Solver::IsOutofChip()
 {
+    OutofChip_y=false;
+    OutofChip_x=false;
+    int max_y=0;
     int l = Contour_H.size();
     for (int i = 0; i < l; i++)
     {
         // cout<<Contour_H[i].til_x<<" "<<Contour_H[i].height<<endl;
-        if (Contour_H[i].height > chip_height)
-        {
-            OutofChip_y = true;
-            break;
-        }
+        if(Contour_H[i].height > max_y)
+            max_y=Contour_H[i].height;
+        
     }
-    if (Contour_H[l - 1].til_x > chip_height)
+    if (max_y > chip_height)
+        OutofChip_y = true;
+    floorplan_y=max_y;
+
+    if (Contour_H[l - 1].til_x > chip_width)
         OutofChip_x = true;
+    floorplan_x=Contour_H[l - 1].til_x;
 }
 
 void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool changeParent, Node *_target) // isFixedMode = 1 when we really want to treat fixed block as pre-placed module
@@ -581,20 +587,16 @@ bool Solver::checkOverlap()
     return 1;
 }
 
-float Solver::calculate_totalcost()
+void Solver::calculate_area_wirelength()
 {
-    float A = 0; // area of the current floorplan
+    A = 0;
     HPWL = 0;
     int prev_til_x = 0;
-    int highest = 0;
 
     int l = Contour_H.size();
     for (int i = 0; i < l; i++)
     {
         // cout<<Contour_H[i].til_x<<" "<<Contour_H[i].height<<endl;
-        if (Contour_H[i].height > highest)
-            highest = Contour_H[i].height;
-
         A += (Contour_H[i].til_x - prev_til_x) * Contour_H[i].height;
         prev_til_x = Contour_H[i].til_x;
     }
@@ -606,8 +608,57 @@ float Solver::calculate_totalcost()
         HPWL += (abs((Modules[Connections[i].index_name1]->location.x + double(Modules[Connections[i].index_name1]->width) / 2) - (Modules[Connections[i].index_name2]->location.x + double(Modules[Connections[i].index_name2]->width) / 2)) + abs((Modules[Connections[i].index_name1]->location.y + double(Modules[Connections[i].index_name1]->height) / 2) - (Modules[Connections[i].index_name2]->location.y + double(Modules[Connections[i].index_name2]->height) / 2))) * Connections[i].pin_Number;
     }
     // cout<<"HPWL: "<<HPWL<<endl;
+}
+
+float Solver::calculate_totalcost(float alpha, float beta)
+{
+    A = 0;
+    HPWL = 0;
+    int prev_til_x = 0;
+
+    int l = Contour_H.size();
+    for (int i = 0; i < l; i++)
+    {
+        // cout<<Contour_H[i].til_x<<" "<<Contour_H[i].height<<endl;
+        A += (Contour_H[i].til_x - prev_til_x) * Contour_H[i].height;
+        prev_til_x = Contour_H[i].til_x;
+    }
+    A_norm=(A-A_min)/(A_max-A_min);
+    // cout<<"A: "<<A<<endl;
+
+    l = Connections.size();
+    for (int i = 0; i < l; i++)
+    {
+        HPWL += (abs((Modules[Connections[i].index_name1]->location.x + double(Modules[Connections[i].index_name1]->width) / 2) - (Modules[Connections[i].index_name2]->location.x + double(Modules[Connections[i].index_name2]->width) / 2)) + abs((Modules[Connections[i].index_name1]->location.y + double(Modules[Connections[i].index_name1]->height) / 2) - (Modules[Connections[i].index_name2]->location.y + double(Modules[Connections[i].index_name2]->height) / 2))) * Connections[i].pin_Number;
+    }
+    float HPWL_norm=(HPWL-HPWL_min)/(HPWL_max-HPWL_min);
+    // cout<<"HPWL: "<<HPWL<<endl;
+    
+    float area_penalty = 0.0;
+    if (floorplan_x > chip_width || floorplan_y > chip_height) {
+        if (floorplan_x > chip_width && floorplan_y > chip_height) {
+            area_penalty += (floorplan_x * floorplan_y - chip_width * chip_height);
+        } 
+        else if (floorplan_x > chip_width) {
+            area_penalty += ((floorplan_x - chip_width) * floorplan_y);
+        } 
+        else if (floorplan_y > chip_height) {
+            area_penalty += (floorplan_x * (floorplan_y - chip_height));
+        }
+        area_penalty += ((floorplan_x - chip_width) * (floorplan_x - chip_width) \
+                    + (floorplan_y - chip_height) * (floorplan_y - chip_height));
+        area_penalty =  (area_penalty-A_min)/(A_max - A_min);
+    }
+    
+    
+    
+    
     // cout<<0.3 * A<<" "<<0.7 * HPWL<<" "<<2*(Contour_H[Contour_H.size()-1].til_x-chip_width)<<" "<<2*(highest-chip_height)<<endl;
-    return 0.3 * A + 0.7 * HPWL + 2 * (Contour_H[Contour_H.size() - 1].til_x - chip_width) + 2 * (highest - chip_height); //////////////////////////////////////////////
+    //return alpha * A_norm + beta * HPWL_norm + (1-alpha-beta) * area_penalty; //////////////////////////////////////////////
+    // return 0.2 * A_norm + 0.5 * HPWL_norm + 0.3 * area_penalty;
+    //return 0.2 * A + 0.5 * HPWL + 0.3 * area_penalty;
+    //return 0.5 * HPWL + 0.5 * area_penalty;
+    return beta * HPWL + (1-beta) * area_penalty;
 }
 
 void Solver::printModules()
@@ -653,7 +704,7 @@ void Solver::outputFloorPlan(int isPrePlaced)
         fout.open("floorplan.txt");
     else
         fout.open("floorplan_before.txt");
-    cout << "outputFloorPlanning..." << endl;
+    //cout << "outputFloorPlanning..." << endl;
     fout << chip_width << " " << chip_height << " " << Modules.size() << endl;
     for (int i = 0; i < Modules.size(); i++)
     {
