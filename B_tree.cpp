@@ -444,7 +444,7 @@ void B_Tree::SA(Solver &s, float beta)
         // cout.flush();
 
 
-    } while ((reject_ratio <= 0.97 && T >= frozen) || num_in_chip==0);
+    } while ((reject_ratio <= 0.97 && T >= frozen) /*|| num_in_chip==0*/);
     // cout << "reject: " << reject << endl;
     // cout << "n_perturb: " << n_perturb << endl;
 

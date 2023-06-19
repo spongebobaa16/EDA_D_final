@@ -17,24 +17,24 @@ int main(int argc, char *argv[])
     // s.readFile_givenWL(argv[1]);
     //  s.printModules();
 
+    
     // no fixed
     B_Tree t;
     t.create_tree(s);
     t.initialTemp(s);
 
-    t.fastSA5(s, 0.5);
+    do{
+        t.SA(s, 0.5);
+        //t.printTree();
+    } while(s.OutofChip_y || s.OutofChip_x);
+    
+    //t.fastSA5(s, 0.5);
     cout<<"W: "<<s.HPWL<<endl;
     cout<<"A: "<<s.A<<endl;
     cout<<"floorplan x: "<<s.floorplan_x<<endl;
     cout<<"floorplan y: "<<s.floorplan_y<<endl;
-    if(!s.OutofChip_x&&!s.OutofChip_y)
-    cout<<"valid"<<endl;
-    // do{
-    //     t.SA(s);
-    //     //t.printTree();
-    // } while(s.OutofChip_y || s.OutofChip_x);
     s.outputFloorPlan();
-    
+        
 
     // t.printTree();
     // s.floorplan(t, 0);
@@ -43,12 +43,13 @@ int main(int argc, char *argv[])
     /*
     B_Tree t;
     t.create_tree(s);
+    t.initialTemp(s);
     // do
     // {
         do
         {
             s.resetFixedStatus();
-            t.SA(s);
+            t.fastSA5(s, 0.5);
             // t.printTree();
             // if (!_first)
             //     t.checkOverlap(s, 1);
