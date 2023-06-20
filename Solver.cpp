@@ -226,20 +226,46 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool changeParen
                 to_x = from_x + Modules[node->index]->width;
                 Yloc = findY(node->index, from_x, to_x);
                 Coord *_assume = new Coord(root_loc.x, Yloc);
+                bool checking = 1;
+                Module *beyondBlock = 0;
                 // for (auto i : fixedModules)
-                for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
-                {
-                    if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                while (checking)
+                    for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
                     {
-                        Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
-                        break;
+                        if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                        {
+                            if (fixedModules[i]->isSlim()) // if the fixed block is slim -> put at its right
+                            {
+                                from_x = fixedModules[i]->fix_location.x + fixedModules[i]->width;
+                                to_x = from_x + Modules[node->index]->width;
+                                Yloc = findY(node->index, from_x, to_x);
+                            }
+                            else // if the fixed block is fat -> put on its top
+                            {
+                                Yloc = fixedModules[i]->fix_location.y + fixedModules[i]->height;
+                                beyondBlock = fixedModules[i];
+                            }
+                            delete _assume;
+                            _assume = new Coord(from_x, Yloc);
+                            break;
+                        }
+                        else if (i == n - 1)
+                        {
+                            Yloc = UpdateContour_H(node->index, from_x, to_x, beyondBlock);
+                            checking = 0;
+                            break;
+                        }
+                        // if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                        // {
+                        //     Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
+                        //     break;
+                        // }
+                        // else if (i == n - 1)
+                        // {
+                        //     Yloc = UpdateContour_H(node->index, from_x, to_x);
+                        //     break;
+                        // }
                     }
-                    else if (i == n - 1)
-                    {
-                        Yloc = UpdateContour_H(node->index, from_x, to_x);
-                        break;
-                    }
-                }
             }
             else
             {
@@ -270,19 +296,26 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool changeParen
                 Yloc = findY(node->index, from_x, to_x);
                 Coord *_assume = new Coord(from_x, Yloc);
                 // for (auto i : fixedModules)
-                for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
-                {
-                    if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                bool checking = 1;
+                while (checking)
+                    for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
                     {
-                        Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
-                        break;
+                        if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                        {
+                            from_x = fixedModules[i]->fix_location.x + fixedModules[i]->width;
+                            to_x = from_x + Modules[node->index]->width;
+                            Yloc = findY(node->index, from_x, to_x);
+                            delete _assume;
+                            _assume = new Coord(from_x, Yloc);
+                            break;
+                        }
+                        else if (i == n - 1)
+                        {
+                            Yloc = UpdateContour_H(node->index, from_x, to_x);
+                            checking = 0;
+                            break;
+                        }
                     }
-                    else if (i == n - 1)
-                    {
-                        Yloc = UpdateContour_H(node->index, from_x, to_x);
-                        break;
-                    }
-                }
             }
             else
             {
@@ -311,20 +344,28 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool changeParen
                 to_x = from_x + Modules[node->index]->width;
                 Yloc = findY(node->index, from_x, to_x);
                 Coord *_assume = new Coord(from_x, Yloc);
+                bool checking = 1;
+                Module *beyondBlock = 0;
                 // for (auto i : fixedModules)
-                for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
-                {
-                    if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                while (checking)
+                    for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
                     {
-                        Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
-                        break;
+                        if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                        {
+                            Yloc = fixedModules[i]->fix_location.y + fixedModules[i]->height;
+                            delete _assume;
+                            _assume = new Coord(from_x, Yloc);
+                            beyondBlock = fixedModules[i];
+                            // Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
+                            break;
+                        }
+                        else if (i == n - 1)
+                        {
+                            Yloc = UpdateContour_H(node->index, from_x, to_x, beyondBlock);
+                            checking = 0;
+                            break;
+                        }
                     }
-                    else if (i == n - 1)
-                    {
-                        Yloc = UpdateContour_H(node->index, from_x, to_x);
-                        break;
-                    }
-                }
             }
             else
             {

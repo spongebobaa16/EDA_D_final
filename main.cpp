@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     } while (!s.checkOverlap() || s.OutofChip_y || s.OutofChip_x);
 
     s.outputFloorPlan();
-
+    cout << '\a' << endl;
     // t.printTree();
     // s.floorplan(t, 0);
     // bool _first = 1;

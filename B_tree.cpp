@@ -754,6 +754,9 @@ bool B_Tree::prePlacedModule(Solver &s) // fixed module is root???  // if the pl
         // s.outputFloorPlan(cnt++);
     }*/
     bool _enable = 0;
+    printTreePreorder(s, root);
+    cout << endl;
+    printTree();
     s.floorplan((*this), _enable, 1); // cannot skip previous step!
     for (auto i : s.fixedModules)
     {
