@@ -10,6 +10,9 @@ def visualize(positions, bounding_box, path="floorplan.png", title="Floorplan"):
     # Figure settings
     bb_width = bounding_box[0]
     bb_height = bounding_box[1]
+    bb_width = 20000
+    bb_height = 20000
+    
     fig = plt.figure(figsize=(10, 10 * bb_height / bb_width + 0.5))
     ax = plt.axes()
     ax.set_aspect("equal")
@@ -186,7 +189,7 @@ def main():
                 {"isFixed" : True,"name": tokens_i[0], "x": float(tokens_i[1]), "y": float(tokens_i[2]), "width": float(tokens_i[3]), "height": float(tokens_i[4])})
 
     
-    visualize(positions, bounding_box)
+    visualize(positions, bounding_box, _src[:-4] + '.png')
     # print(bounding_box)
     # print(positions[0]["name"])
 

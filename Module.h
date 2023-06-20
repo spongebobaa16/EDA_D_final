@@ -26,6 +26,7 @@ public:
     bool fixed;         // fixed: true,  soft: false
     int fixed_status;   // 1 : unused, 2 : using, 3 : used
     vector<Width_Height> validWH;
+    bool isSlim() { return width < height; }
     void calculate_w_l(int area);
     void rotate()
     {
