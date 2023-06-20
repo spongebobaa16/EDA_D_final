@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     t.initialTemp(s);
 
     do{
-        t.SA(s, 0.5);
+        t.fastSA5(s, 0.5);
         //t.printTree();
     } while(s.OutofChip_y || s.OutofChip_x);
     

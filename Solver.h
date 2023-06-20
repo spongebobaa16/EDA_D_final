@@ -69,8 +69,10 @@ public:
     int chip_height; // input info
     float A; // area of the current floorplan
     float HPWL; // wirelength of the current floorplan
+    float area_penalty;
     float A_norm; //for SA cost function
     float HPWL_norm; //for SA cost function
+    float area_penalty_norm; //for SA cost function
     float A_min;
     float A_max;
     float HPWL_min;

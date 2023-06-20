@@ -608,33 +608,8 @@ void Solver::calculate_area_wirelength()
         HPWL += (abs((Modules[Connections[i].index_name1]->location.x + double(Modules[Connections[i].index_name1]->width) / 2) - (Modules[Connections[i].index_name2]->location.x + double(Modules[Connections[i].index_name2]->width) / 2)) + abs((Modules[Connections[i].index_name1]->location.y + double(Modules[Connections[i].index_name1]->height) / 2) - (Modules[Connections[i].index_name2]->location.y + double(Modules[Connections[i].index_name2]->height) / 2))) * Connections[i].pin_Number;
     }
     // cout<<"HPWL: "<<HPWL<<endl;
-}
 
-float Solver::calculate_totalcost(float alpha, float beta)
-{
-    A = 0;
-    HPWL = 0;
-    int prev_til_x = 0;
-
-    int l = Contour_H.size();
-    for (int i = 0; i < l; i++)
-    {
-        // cout<<Contour_H[i].til_x<<" "<<Contour_H[i].height<<endl;
-        A += (Contour_H[i].til_x - prev_til_x) * Contour_H[i].height;
-        prev_til_x = Contour_H[i].til_x;
-    }
-    A_norm=(A-A_min)/(A_max-A_min);
-    // cout<<"A: "<<A<<endl;
-
-    l = Connections.size();
-    for (int i = 0; i < l; i++)
-    {
-        HPWL += (abs((Modules[Connections[i].index_name1]->location.x + double(Modules[Connections[i].index_name1]->width) / 2) - (Modules[Connections[i].index_name2]->location.x + double(Modules[Connections[i].index_name2]->width) / 2)) + abs((Modules[Connections[i].index_name1]->location.y + double(Modules[Connections[i].index_name1]->height) / 2) - (Modules[Connections[i].index_name2]->location.y + double(Modules[Connections[i].index_name2]->height) / 2))) * Connections[i].pin_Number;
-    }
-    float HPWL_norm=(HPWL-HPWL_min)/(HPWL_max-HPWL_min);
-    // cout<<"HPWL: "<<HPWL<<endl;
-    
-    float area_penalty = 0.0;
+    area_penalty = 0.0;
     if (floorplan_x > chip_width || floorplan_y > chip_height) {
         if (floorplan_x > chip_width && floorplan_y > chip_height) {
             area_penalty += (floorplan_x * floorplan_y - chip_width * chip_height);
@@ -645,20 +620,92 @@ float Solver::calculate_totalcost(float alpha, float beta)
         else if (floorplan_y > chip_height) {
             area_penalty += (floorplan_x * (floorplan_y - chip_height));
         }
-        area_penalty += ((floorplan_x - chip_width) * (floorplan_x - chip_width) \
-                    + (floorplan_y - chip_height) * (floorplan_y - chip_height));
-        area_penalty =  (area_penalty-A_min)/(A_max - A_min);
+        // area_penalty += ((floorplan_x - chip_width) * (floorplan_x - chip_width) \
+        //             + (floorplan_y - chip_height) * (floorplan_y - chip_height));
+        // area_penalty =  (area_penalty-A_min)/(A_max - A_min);
+    }
+
+    l=Modules.size();
+    for(int i=0; i<l; ++i){
+        int right_x=Modules[i]->location.x+Modules[i]->width;
+        int top_y=Modules[i]->location.y+Modules[i]->height;
+        if(right_x>chip_width && top_y<=chip_height)
+            area_penalty+=((right_x-chip_width)*(right_x-chip_width));
+        else if(right_x<=chip_width && top_y>chip_height)
+            area_penalty+=((top_y-chip_height)*(top_y-chip_height));
+        else if(right_x>chip_width && top_y>chip_height)
+            area_penalty+=((right_x-chip_width)*(right_x-chip_width)+(top_y-chip_height)*(top_y-chip_height));
+    }
+
+}
+
+float Solver::calculate_totalcost(float alpha, float beta)
+{
+    A = 0;
+    HPWL = 0;
+    int prev_til_x = 0;
+
+    
+    int l = Contour_H.size();
+    for (int i = 0; i < l; i++)
+    {
+        // cout<<Contour_H[i].til_x<<" "<<Contour_H[i].height<<endl;
+        A += (Contour_H[i].til_x - prev_til_x) * Contour_H[i].height;
+        prev_til_x = Contour_H[i].til_x;
+    }
+    //A_norm=(A-A_min)/(A_max-A_min);
+    // cout<<"A: "<<A<<endl;
+    
+
+
+    l = Connections.size();
+    for (int i = 0; i < l; i++)
+    {
+        HPWL += (abs((Modules[Connections[i].index_name1]->location.x + double(Modules[Connections[i].index_name1]->width) / 2) - (Modules[Connections[i].index_name2]->location.x + double(Modules[Connections[i].index_name2]->width) / 2)) + abs((Modules[Connections[i].index_name1]->location.y + double(Modules[Connections[i].index_name1]->height) / 2) - (Modules[Connections[i].index_name2]->location.y + double(Modules[Connections[i].index_name2]->height) / 2))) * Connections[i].pin_Number;
+    }
+    //float HPWL_norm=(HPWL-HPWL_min)/(HPWL_max-HPWL_min);
+    // cout<<"HPWL: "<<HPWL<<endl;
+    
+    area_penalty = 0.0;
+    if (floorplan_x > chip_width || floorplan_y > chip_height) {
+        if (floorplan_x > chip_width && floorplan_y > chip_height) {
+            area_penalty += (floorplan_x * floorplan_y - chip_width * chip_height);
+        } 
+        else if (floorplan_x > chip_width) {
+            area_penalty += ((floorplan_x - chip_width) * floorplan_y);
+        } 
+        else if (floorplan_y > chip_height) {
+            area_penalty += (floorplan_x * (floorplan_y - chip_height));
+        }
+        // area_penalty += ((floorplan_x - chip_width) * (floorplan_x - chip_width) \
+        //             + (floorplan_y - chip_height) * (floorplan_y - chip_height));
+        // area_penalty =  (area_penalty-A_min)/(A_max - A_min);
     }
     
     
-    
+    l=Modules.size();
+    for(int i=0; i<l; ++i){
+        int right_x=Modules[i]->location.x+Modules[i]->width;
+        int top_y=Modules[i]->location.y+Modules[i]->height;
+        if(right_x>chip_width && top_y<=chip_height)
+            area_penalty+=((right_x-chip_width)*(right_x-chip_width));
+        else if(right_x<=chip_width && top_y>chip_height)
+            area_penalty+=((top_y-chip_height)*(top_y-chip_height));
+        else if(right_x>chip_width && top_y>chip_height)
+            area_penalty+=((right_x-chip_width)*(right_x-chip_width)+(top_y-chip_height)*(top_y-chip_height));
+    }
     
     // cout<<0.3 * A<<" "<<0.7 * HPWL<<" "<<2*(Contour_H[Contour_H.size()-1].til_x-chip_width)<<" "<<2*(highest-chip_height)<<endl;
     //return alpha * A_norm + beta * HPWL_norm + (1-alpha-beta) * area_penalty; //////////////////////////////////////////////
     // return 0.2 * A_norm + 0.5 * HPWL_norm + 0.3 * area_penalty;
     //return 0.2 * A + 0.5 * HPWL + 0.3 * area_penalty;
     //return 0.5 * HPWL + 0.5 * area_penalty;
-    return beta * HPWL + (1-beta) * area_penalty;
+    // return beta * HPWL + (1-beta) * area_penalty;
+
+    // cout<<"HPWL: "<<HPWL<<" HPWL_norm: "<<HPWL_norm<<endl;
+    // cout<<"area: "<<area_penalty<<" areaL_norm: "<<area_penalty_norm<<endl;
+    // cout<<endl;
+    return alpha*A/A_norm+ beta * HPWL/HPWL_norm + (1-alpha-beta) * area_penalty/area_penalty_norm;
 }
 
 void Solver::printModules()
