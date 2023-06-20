@@ -4,15 +4,9 @@
 #include "Solver.h"
 #include "util.h"
 #include <unistd.h>
-<<<<<<< HEAD
 //#define N 10 //N times perturb before SA
 // #define P 0.99 //initial accept rate
 #define P 0.9999
-=======
-#define N 10   // N times perturb before SA
-#define P 0.99 // initial accept rate
-// #define P 0.999999999
->>>>>>> 6c74f59fe6772032819e16990a62829a6ca70004
 #define K 10
 #define c 100
 #define k 7
@@ -335,13 +329,8 @@ void B_Tree::SA(Solver &s, float beta)
 {
 
     bool dummy = 1;
-<<<<<<< HEAD
     //const float n = K * s.Modules.size(); // total number of uphill moves
     //const float frozen = T0 / 1.0e10;
-=======
-    // const float n = K * s.Modules.size(); // total number of uphill moves
-    const float frozen = T0 / 1.0e20;
->>>>>>> 6c74f59fe6772032819e16990a62829a6ca70004
     // cout<<"initial: "<<T0<<endl;
     // cout.flush();
     // cout<<"frozen: "<<frozen<<endl;
@@ -377,19 +366,12 @@ void B_Tree::SA(Solver &s, float beta)
     float best_cost = prev_cost;
 
     float T = T0;
-<<<<<<< HEAD
     // float n_perturb=s.Modules.size()*s.Modules.size()*2;
     float n_perturb=float(2*n_module+20);
     float reset_th=float(2*n_module);
     float stop_th=float(5*n_module);
     float reject, reject_ratio;
     float iter = 1; //k-th iteration
-=======
-    float n_perturb = s.Modules.size() * s.Modules.size() * 2;
-
-    float reject, reject_ratio;
-    float iter = 0; // k-th iteration
->>>>>>> 6c74f59fe6772032819e16990a62829a6ca70004
     do
     {
         iter++;
@@ -404,15 +386,10 @@ void B_Tree::SA(Solver &s, float beta)
             new_cost = perturb(s, alpha, beta);
             // cout<<"current cost: "<<new_cost<<endl;
             delta_c = new_cost - prev_cost;
-<<<<<<< HEAD
             // cout<<"delta cost: "<<delta_c<<endl;
             total_delta_cost += abs(delta_c);
 
             if (delta_c <= 0)
-=======
-
-            if (delta_c < 0)
->>>>>>> 6c74f59fe6772032819e16990a62829a6ca70004
             { // down-hill move
                 // cout << "downhill" << new_cost << " " << prev_cost<< endl;
 
@@ -478,7 +455,6 @@ void B_Tree::SA(Solver &s, float beta)
         // cout<<endl;
         // cout.flush();
 
-<<<<<<< HEAD
         if(num_in_chip==0){
             if(iter > reset_th) {
                 T = T0;
@@ -489,15 +465,12 @@ void B_Tree::SA(Solver &s, float beta)
                 n_perturb ++;
             }
         } 
-        // else if(iter > stop_th){
-        //     cout<<"IM DONEEEEEEEEEEEEEEEEEEEE"<<endl;
-        //     break;
-        // }
+        else if(iter > stop_th){
+            //cout<<"IM DONEEEEEEEEEEEEEEEEEEEE"<<endl;
+            break;
+        }
 
-    } while ((reject_ratio <= 0.95 && T > frozen) || num_in_chip==0);
-=======
-    } while ((reject_ratio <= 0.97 && T >= frozen) /*|| num_in_chip==0*/);
->>>>>>> 6c74f59fe6772032819e16990a62829a6ca70004
+    } while ((reject_ratio <= 0.95 && T >= frozen) || num_in_chip==0);
     // cout << "reject: " << reject << endl;
     // cout << "n_perturb: " << n_perturb << endl;
 
@@ -687,7 +660,6 @@ void B_Tree::init_perturb(Solver &s)
 
 void B_Tree::initialTemp(Solver &s)
 {
-<<<<<<< HEAD
     const int N=s.Modules.size()*s.Modules.size(); //N times perturb before SA
     float total_A=0; // to calculate A_norm
     float total_HPWL=0; // to calculate HPWL_norm
@@ -703,24 +675,6 @@ void B_Tree::initialTemp(Solver &s)
         total_A+=s.A;
         total_HPWL+=s.HPWL;
         total_area_penalty+=s.area_penalty;
-=======
-    float total_A = 0;    // to calculate A_norm
-    float total_HPWL = 0; // to calculate HPWL_norm
-    for (int i = 1; i < N; ++i)
-    {
-        init_perturb(s);
-        if (s.A < s.A_min)
-            s.A_min = s.A;
-        if (s.A > s.A_max)
-            s.A_max = s.A;
-        if (s.HPWL < s.HPWL_min)
-            s.HPWL_min = s.HPWL;
-        if (s.HPWL > s.HPWL_max)
-            s.HPWL_max = s.HPWL;
-
-        total_A += s.A;
-        total_HPWL += s.HPWL;
->>>>>>> 6c74f59fe6772032819e16990a62829a6ca70004
         // printTree();
     }
     s.A_norm=total_A/float(N);
@@ -749,12 +703,7 @@ void B_Tree::initialTemp(Solver &s)
         }
     } while (uphill_times == 0);
 
-<<<<<<< HEAD
     
-=======
-    s.A_norm = total_A / float(N);
-    s.HPWL_norm = total_HPWL / float(N);
->>>>>>> 6c74f59fe6772032819e16990a62829a6ca70004
     float c_avg = uphill_cost / float(uphill_times); // calculates average difference of uphill moves
     // cout<<"c_avg: "<<c_avg<<endl;
     // cout<<"uphill_times: "<<uphill_times<<endl;

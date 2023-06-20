@@ -17,12 +17,11 @@ int main(int argc, char *argv[])
     // s.readFile_givenWL(argv[1]);
     //  s.printModules();
 
-    /*
-    // no fixed
     B_Tree t;
     t.create_tree(s);
     t.initialTemp(s);
-
+    /*
+    // no fixed
     do{
         t.fastSA5(s, 0.5);
         //t.printTree();
