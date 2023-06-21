@@ -9,7 +9,7 @@
 #define P 0.999
 #define K 10
 #define c 100
-#define k 7
+#define k 5
 #define frozen 0.001
 #define ratio 0.85
 #define lambdatf 0.005
@@ -395,7 +395,7 @@ void B_Tree::SA(Solver &s, float beta)
 
                 if (!s.OutofChip_x && !s.OutofChip_y)
                 {
-                    cout<<"feasible!"<<endl;
+                    // cout<<"feasible!"<<endl;
                     ++num_feasible_floorplans;
                     ++num_in_chip;
                     if (new_cost < best_cost)
@@ -452,7 +452,7 @@ void B_Tree::SA(Solver &s, float beta)
         }
         // cout << "T0: " << T0 << endl;
         // cout<<iter<<" "<<T<<" "<<frozen<<endl;
-        // if(T<frozen) cout << iter << " FROzeee" << endl;
+        if(T<frozen) cout << iter << " FROzeee" << endl;
         // cout << !s.checkOverlap() << " " << s.OutofChip_y << " " << s.OutofChip_x << endl;
         // cout << (!s.checkOverlap() || s.OutofChip_y || s.OutofChip_x) << endl;
         // cout<<endl;
@@ -717,77 +717,18 @@ void B_Tree::initialTemp(Solver &s)
 bool B_Tree::prePlacedModule(Solver &s) // fixed module is root???  // if the place is empty where fixed module wants to go??
 {                                       // D = {} ??    // heuristic -> the floorplan usually not good when D.size() == 1
     // printTree();                     // cannot place fixed module with big height so early
-    // vector<Module *> fixedModules;
     s.outputFloorPlan(0);
-    // s.outputFloorPlanRect(0);
-    // for (size_t i = s.num_softmodules - 1; i >= 0 && s.Modules[i]->fixed; --i)
-    //     fixedModules.push_back(s.Modules[i]);
     int cnt = 2;
     for (auto i : s.fixedModules)
     {
-        // bool r = rand() % 2;
-        // remove(i->index, r);
         i->location = i->fix_location;
     }
-    // cout << i->name << ' ';
-    // cout << endl;
-    /*for (auto i : s.fixedModules)
-    {
-        Node *fixedNode = Tree_vec[i->index], *_it = fixedNode->parent, *firstDominatedNode = 0, *_prev = fixedNode; // _prev is to record which subtree does fixed node climb up from
-        while (_it != 0)
-        {
-            if (s.Modules[_it->index]->isDominated(s.Modules[fixedNode->index]))
-            {
-                break;
-            }
-            if (_it == root)
-                break;
-            _prev = _it;
-            _it = _it->parent;
-        }
-        firstDominatedNode = Tree_vec[i->index] == root ? root : _it;
-        // // cout << fixedNode->index << ' ' << s.Modules[fixedNode->index]->fix_location.x << ' ' << s.Modules[fixedNode->index]->fix_location.y << endl;
-        // // cout << firstDominatedNode->index << ' ' << s.Modules[firstDominatedNode->index]->location.x << ' ' << s.Modules[firstDominatedNode->index]->location.y << endl;
-        // // cout << _prev->isLeftChild() << endl;
-        vector<Node *> D;
-        exchangableNode(s, firstDominatedNode, fixedNode, D, (Tree_vec[i->index] == root ? 0 : (_prev->isLeftChild() ? 2 : 1))); // from which subtree -> search the other
-        if (D.empty())
-            return 0;
-        // cout << "D = \n";
-        // for (auto j : D)
-        //     cout << j->index << ' ';
-        // cout << endl;
-        int closestDistance = 2147483647, closestIndex = -1;
-        for (auto j : D)
-        {
-            // cout << s.Modules[j->index]->manhattanDistance_LC(s.Modules[fixedNode->index]) << ' ';
-            if (s.Modules[j->index]->manhattanDistance_LC(s.Modules[fixedNode->index]) < closestDistance)
-            {
-                closestDistance = s.Modules[j->index]->manhattanDistance_LC(s.Modules[fixedNode->index]);
-                closestIndex = j->index;
-            }
-        }
-        // // cout << endl;
-        // // cout << closestIndex << endl
-        //      << endl;
-        swap(i->index, closestIndex);
-        bool _enable = 0;
-        i->fixed_status = 2; // turn fixed_status to "using"
-        // s.placeBlock(root, 0, 1, _enable, Tree_vec[i->index]);
-        s.floorplan((*this), _enable, 1, Tree_vec[i->index]); // cannot skip previous step!
-        // s.outputFloorPlan(cnt++);
-    }*/
+
     bool _enable = 0;
     printTreePreorder(s, root);
     cout << endl;
     printTree();
     s.floorplan((*this), _enable, 1); // cannot skip previous step!
-    // for (auto i : s.fixedModules)
-    // {
-    //     bool r1 = rand() % 2, r2 = rand() % 2;
-    //     Tree_vec[i->index] = new Node(i->index);
-    //     insert(i->index, root->index, r1, r2);
-    // }
     return 1;
 }
 void B_Tree::exchangableNode(Solver &s, Node *_node, Node *_fixed, vector<Node *> &D, size_t _specificDirection) // specificDirection : 0 -> both, 1 -> left only, 2 -> right only

@@ -37,9 +37,14 @@ int main(int argc, char *argv[])
     
     // t.fastSA5(s, 0.5);
     
-    
+    int rep = 0;
     do
     {
+        cout << "rep: " << rep++ << endl;
+        if(rep == 10){
+            for(int j=0; j<100; j++) t.init_perturb(s);
+            rep = 0;
+        }
         t.SA(s, 0.5);
         cout << "W: " << s.HPWL << endl;
         cout << "A: " << s.A << endl;
