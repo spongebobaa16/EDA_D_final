@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
         //     //t.printTree();
         // } while(s.OutofChip_y || s.OutofChip_x);
         t.prePlacedModule(s);
+        s.outputFloorPlan();
         cout << "1: " << !s.checkOverlap() << " 2: " <<  s.OutofChip_y << " 3: " << s.OutofChip_x << endl; 
     } while (!s.checkOverlap() || s.OutofChip_y || s.OutofChip_x);
     

@@ -16,7 +16,7 @@
 
 void B_Tree::create_tree(const Solver &s)
 {
-    for (int i = 0; i < s.Modules.size(); i++)
+    for (int i = 0; i < s.num_softmodules; i++)
     {
         Node *newNode = new Node(i);
         Tree_vec.push_back(newNode);
@@ -25,7 +25,7 @@ void B_Tree::create_tree(const Solver &s)
     // Manually initial B_Tree below, for debugging
 
     root = Tree_vec[0];
-    for (int i = 1; i < s.Modules.size(); i++)
+    for (int i = 1; i < s.num_softmodules; i++)
     {
         if (i % 2 == 1)
         {
@@ -294,7 +294,7 @@ void B_Tree::fastSA5(Solver &s, float beta)
 
     Node *best_root;
     vector<Node *> best;
-    for (int i = 0; i < s.Modules.size(); i++)
+    for (int i = 0; i < s.num_softmodules; i++)
     {
         Node *newNode = new Node(i);
         best.push_back(newNode);
@@ -302,7 +302,7 @@ void B_Tree::fastSA5(Solver &s, float beta)
 
     float best_HPWL = numeric_limits<float>::max();
 
-    copyTree(best, s.Modules.size());
+    copyTree(best, s.num_softmodules);
     for (int i = 0; i < 5; ++i)
     {
         SA(s, beta);
@@ -310,12 +310,12 @@ void B_Tree::fastSA5(Solver &s, float beta)
         // printTree();
         if (s.HPWL < best_HPWL)
         {
-            copyTree(best, s.Modules.size());
+            copyTree(best, s.num_softmodules);
             best_root = root;
             best_HPWL = s.HPWL;
         }
     }
-    returnTree(best, s.Modules.size());
+    returnTree(best, s.num_softmodules);
     // printTree();
     root = best_root;
     // cout << "root: m" << root->index + 1 << endl;
@@ -329,7 +329,7 @@ void B_Tree::SA(Solver &s, float beta)
 {
 
     bool dummy = 1;
-    //const float n = K * s.Modules.size(); // total number of uphill moves
+    //const float n = K * s.num_softmodules; // total number of uphill moves
     //const float frozen = T0 / 1.0e10;
     // cout<<"initial: "<<T0<<endl;
     // cout.flush();
@@ -346,7 +346,7 @@ void B_Tree::SA(Solver &s, float beta)
 
     Node *best_root = root;
     vector<Node *> best, prev;
-    int n_module=s.Modules.size();
+    int n_module=s.num_softmodules;
     for (int i = 0; i < n_module; i++)
     {
         Node *newNode = new Node(i);
@@ -366,7 +366,7 @@ void B_Tree::SA(Solver &s, float beta)
     float best_cost = prev_cost;
 
     float T = T0;
-    // float n_perturb=s.Modules.size()*s.Modules.size()*2;
+    // float n_perturb=s.num_softmodules*s.num_softmodules*2;
     float n_perturb=float(2*n_module+20);
     float reset_th=float(2*n_module);
     float stop_th=float(5*n_module);
@@ -515,15 +515,15 @@ float B_Tree::perturb(Solver &s, float alpha, float beta)
     int op = rand() % 4 + 1;
     // if (op == 1)
     // {
-    //     int m1 = rand() % (s.Modules.size());
+    //     int m1 = rand() % (s.num_softmodules);
     //     //cout << "op1: rotate " << m1 << endl;
     //     rotate(m1);
-    //     // rotate(rand()%(s.Modules.size()));
+    //     // rotate(rand()%(s.num_softmodules));
     // }
     float r = ((float)rand() / (RAND_MAX));
     if (op == 1)
     {
-        int m1 = rand() % (s.Modules.size());
+        int m1 = rand() % (s.num_softmodules);
         if (s.OutofChip_y && ((Tree_vec[m1]->_isRotated && Width(m1, s) > Height(m1, s)) || (!Tree_vec[m1]->_isRotated && Width(m1, s) < Height(m1, s))))
         {
             if (r > 0.8)
@@ -548,11 +548,11 @@ float B_Tree::perturb(Solver &s, float alpha, float beta)
     // {
     //     bool parent_left = (rand() % 2 == 1) ? true : false;
     //     bool child_left = (rand() % 2 == 1) ? true : false;
-    //     int m1 = rand() % (s.Modules.size());
+    //     int m1 = rand() % (s.num_softmodules);
     //     int m2;
     //     do
     //     {
-    //         m2 = rand() % (s.Modules.size());
+    //         m2 = rand() % (s.num_softmodules);
     //     } while (m1 == m2);
 
     //     //cout << "op2: move " << m1 << " to " << m2 << endl;
@@ -569,11 +569,11 @@ float B_Tree::perturb(Solver &s, float alpha, float beta)
             parent_left = (r >= 0.5) ? true : false;
 
         bool child_left = (rand() % 2 == 1) ? true : false;
-        int m1 = rand() % (s.Modules.size());
+        int m1 = rand() % (s.num_softmodules);
         int m2;
         do
         {
-            m2 = rand() % (s.Modules.size());
+            m2 = rand() % (s.num_softmodules);
         } while (m1 == m2);
 
         // cout << "op2: move " << m1 << " to " << m2 << endl;
@@ -581,18 +581,18 @@ float B_Tree::perturb(Solver &s, float alpha, float beta)
     }
     else if (op == 3)
     {
-        int m1 = rand() % (s.Modules.size());
+        int m1 = rand() % (s.num_softmodules);
         int m2;
         do
         {
-            m2 = rand() % (s.Modules.size());
+            m2 = rand() % (s.num_softmodules);
         } while (m1 == m2);
         // // cout << "op3: swap " << m1 << " and " << m2 << endl;
         swap(m1, m2);
     }
     else if (op == 4)
     {
-        int m1 = rand() % (s.Modules.size());
+        int m1 = rand() % (s.num_softmodules);
         s.Modules[Tree_vec[m1]->index]->changeWH(rand());
     }
 
@@ -615,21 +615,21 @@ void B_Tree::init_perturb(Solver &s)
     int op = rand() % 4 + 1;
     if (op == 1)
     {
-        int m1 = rand() % (s.Modules.size());
+        int m1 = rand() % (s.num_softmodules);
         // cout << "op1: rotate " << m1 << endl;
         rotate(m1);
-        // rotate(rand()%(s.Modules.size()));
+        // rotate(rand()%(s.num_softmodules));
     }
 
     else if (op == 2)
     {
         bool parent_left = (rand() % 2 == 1) ? true : false;
         bool child_left = (rand() % 2 == 1) ? true : false;
-        int m1 = rand() % (s.Modules.size());
+        int m1 = rand() % (s.num_softmodules);
         int m2;
         do
         {
-            m2 = rand() % (s.Modules.size());
+            m2 = rand() % (s.num_softmodules);
         } while (m1 == m2);
 
         // cout << "op2: move " << m1 << " to " << m2 << endl;
@@ -638,18 +638,18 @@ void B_Tree::init_perturb(Solver &s)
 
     else if (op == 3)
     {
-        int m1 = rand() % (s.Modules.size());
+        int m1 = rand() % (s.num_softmodules);
         int m2;
         do
         {
-            m2 = rand() % (s.Modules.size());
+            m2 = rand() % (s.num_softmodules);
         } while (m1 == m2);
         // // cout << "op3: swap " << m1 << " and " << m2 << endl;
         swap(m1, m2);
     }
     else if (op == 4)
     {
-        int m1 = rand() % (s.Modules.size());
+        int m1 = rand() % (s.num_softmodules);
         s.Modules[Tree_vec[m1]->index]->changeWH(rand());
     }
 
@@ -663,7 +663,7 @@ void B_Tree::init_perturb(Solver &s)
 
 void B_Tree::initialTemp(Solver &s)
 {
-    const int N=s.Modules.size()*s.Modules.size(); //N times perturb before SA
+    const int N=s.num_softmodules*s.num_softmodules; //N times perturb before SA
     float total_A=0; // to calculate A_norm
     float total_HPWL=0; // to calculate HPWL_norm
     float total_area_penalty=0;
@@ -720,13 +720,13 @@ bool B_Tree::prePlacedModule(Solver &s) // fixed module is root???  // if the pl
     // vector<Module *> fixedModules;
     s.outputFloorPlan(0);
     // s.outputFloorPlanRect(0);
-    // for (size_t i = s.Modules.size() - 1; i >= 0 && s.Modules[i]->fixed; --i)
+    // for (size_t i = s.num_softmodules - 1; i >= 0 && s.Modules[i]->fixed; --i)
     //     fixedModules.push_back(s.Modules[i]);
     int cnt = 2;
     for (auto i : s.fixedModules)
     {
-        bool r = rand() % 2;
-        remove(i->index, r);
+        // bool r = rand() % 2;
+        // remove(i->index, r);
         i->location = i->fix_location;
     }
     // cout << i->name << ' ';
@@ -782,12 +782,12 @@ bool B_Tree::prePlacedModule(Solver &s) // fixed module is root???  // if the pl
     cout << endl;
     printTree();
     s.floorplan((*this), _enable, 1); // cannot skip previous step!
-    for (auto i : s.fixedModules)
-    {
-        bool r1 = rand() % 2, r2 = rand() % 2;
-        Tree_vec[i->index] = new Node(i->index);
-        insert(i->index, root->index, r1, r2);
-    }
+    // for (auto i : s.fixedModules)
+    // {
+    //     bool r1 = rand() % 2, r2 = rand() % 2;
+    //     Tree_vec[i->index] = new Node(i->index);
+    //     insert(i->index, root->index, r1, r2);
+    // }
     return 1;
 }
 void B_Tree::exchangableNode(Solver &s, Node *_node, Node *_fixed, vector<Node *> &D, size_t _specificDirection) // specificDirection : 0 -> both, 1 -> left only, 2 -> right only
@@ -805,11 +805,11 @@ void B_Tree::exchangableNode(Solver &s, Node *_node, Node *_fixed, vector<Node *
 // bool B_Tree::checkOverlap(Solver &s, bool _toPlaceLeft)
 // {
 //     vector<Module *> fixedModules;
-//     for (size_t i = s.Modules.size() - 1; i >= 0 && s.Modules[i]->fixed; --i)
+//     for (size_t i = s.num_softmodules - 1; i >= 0 && s.Modules[i]->fixed; --i)
 //         fixedModules.push_back(s.Modules[i]);
 //     for (auto fixModule : fixedModules)
 //     {
-//         for (size_t i = 0, n = s.Modules.size(); i < n; ++i)
+//         for (size_t i = 0, n = s.num_softmodules; i < n; ++i)
 //         {
 //             if (s.Modules[i]->fixed)
 //                 continue;
