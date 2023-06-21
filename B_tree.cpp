@@ -6,7 +6,7 @@
 #include <unistd.h>
 //#define N 10 //N times perturb before SA
 // #define P 0.99 //initial accept rate
-#define P 0.9999
+#define P 0.999
 #define K 10
 #define c 100
 #define k 7
@@ -38,7 +38,7 @@ void B_Tree::create_tree(const Solver &s)
     }
 
     // remove(6, 0);
-    // printTree();
+    printTree();
     // ─────0
     //     L├────1
     //      │   L├────3
@@ -395,7 +395,7 @@ void B_Tree::SA(Solver &s, float beta)
 
                 if (!s.OutofChip_x && !s.OutofChip_y)
                 {
-                    // cout<<"feasible!"<<endl;
+                    cout<<"feasible!"<<endl;
                     ++num_feasible_floorplans;
                     ++num_in_chip;
                     if (new_cost < best_cost)
@@ -450,8 +450,11 @@ void B_Tree::SA(Solver &s, float beta)
             T = T0 * average_delta_cost / iter;
             //cout<<"stage 3"<<endl;
         }
-
+        // cout << "T0: " << T0 << endl;
         // cout<<iter<<" "<<T<<" "<<frozen<<endl;
+        // if(T<frozen) cout << iter << " FROzeee" << endl;
+        // cout << !s.checkOverlap() << " " << s.OutofChip_y << " " << s.OutofChip_x << endl;
+        // cout << (!s.checkOverlap() || s.OutofChip_y || s.OutofChip_x) << endl;
         // cout<<endl;
         // cout.flush();
 
@@ -466,7 +469,7 @@ void B_Tree::SA(Solver &s, float beta)
             }
         } 
         else if(iter > stop_th){
-            //cout<<"IM DONEEEEEEEEEEEEEEEEEEEE"<<endl;
+            cout<<"IM DONEEEEEEEEEEEEEEEEEEEE"<<endl;
             break;
         }
 
@@ -692,12 +695,12 @@ void B_Tree::initialTemp(Solver &s)
         for (int i = 1; i < N; ++i)
         {
             float cost = perturb(s, alpha, beta);
-            if (cost > prev_cost)
-            {
-                uphill_cost += (cost - prev_cost);
+            // if (cost > prev_cost)
+            // {
+                uphill_cost += abs(cost - prev_cost);
                 uphill_times++;
                 // cout<<"UPHILL"<<endl;
-            }
+            // }
             prev_cost = cost;
             // printTree();
         }

@@ -697,7 +697,7 @@ float Solver::calculate_totalcost(float alpha, float beta)
         A += (Contour_H[i].til_x - prev_til_x) * Contour_H[i].height;
         prev_til_x = Contour_H[i].til_x;
     }
-    A_norm = (A - A_min) / (A_max - A_min);
+    // A_norm = (A - A_min) / (A_max - A_min);
     // cout<<"A: "<<A<<endl;
     
 
@@ -751,7 +751,12 @@ float Solver::calculate_totalcost(float alpha, float beta)
     // cout<<"HPWL: "<<HPWL<<" HPWL_norm: "<<HPWL_norm<<endl;
     // cout<<"area: "<<area_penalty<<" areaL_norm: "<<area_penalty_norm<<endl;
     // cout<<endl;
-    return alpha*A/A_norm+ beta * HPWL/HPWL_norm + (1-alpha-beta) * area_penalty/area_penalty_norm;
+    
+    float ans = alpha*A/A_norm+ beta * HPWL/HPWL_norm + (1-alpha-beta) * area_penalty/area_penalty_norm;
+    // cout << "A: " << A << " An: " << A_norm << endl;
+    // cout << "A/An: " << A/A_norm << " H/Hn: " << HPWL/HPWL_norm << " a/an: " << area_penalty/area_penalty_norm << endl;
+    // cout << "Cost: " << ans << endl;
+    return ans;
 }
 
 void Solver::printModules()
