@@ -60,8 +60,29 @@ void Solver::readFile(const char *filename)
     Contour_H.push_back(initContour);
     for (size_t i = Modules.size() - 1; i >= 0 && Modules[i]->fixed; --i)
         fixedModules.push_back(Modules[i]);
+    // sort(fixedModules.begin(), fixedModules.end(), [](Module *a, Module *b)
+    //  { return a->manhattanDistance_fixed_orig() < b->manhattanDistance_fixed_orig(); });
     sort(fixedModules.begin(), fixedModules.end(), [](Module *a, Module *b)
-         { return a->manhattanDistance_fixed_orig() < b->manhattanDistance_fixed_orig(); });
+         { return a->fix_location.y < b->fix_location.y; });
+    vector<int> breakpoints({0});
+    for (size_t i = 1, n = fixedModules.size(); i < n; ++i)
+    {
+        if (fixedModules[i - 1]->fix_location.y != fixedModules[i]->fix_location.y)
+            breakpoints.push_back(i);
+    }
+    // for (auto i : fixedModules)
+    //     cout << i->name << ' ' << endl;
+    // cout << endl;
+    // for (auto i : breakpoints)
+    //     cout << i << ' ';
+    // cout << endl;
+    for (size_t i = 0, n = breakpoints.size() - 1; i < n; ++i)
+    {
+        sort(fixedModules.begin() + breakpoints[i], (i == n - 1 ? fixedModules.end() : fixedModules.begin() + breakpoints[i + 1]), [](Module *a, Module *b)
+             { return a->fix_location.x < b->fix_location.x; });
+    }
+    for (auto i : fixedModules)
+        cout << i->name << ' ' << endl;
 }
 
 void Solver::readFile_givenWL(const char *filename)
@@ -138,11 +159,11 @@ void Solver::readFile_givenWL(const char *filename)
 //     }
 // }
 
-void Solver::floorplan(B_Tree &t, bool &_enable, bool isFixedMode, Node *_target) // _enable = 1 when we find the target node(...in dfs order we only have to ploorplan those who appears later )
+void Solver::floorplan(B_Tree &t, bool &_enable, bool isFixedMode) // _enable = 1 when we find the target node(...in dfs order we only have to ploorplan those who appears later )
 {
     // cout << endl;
     Contour_H.clear();
-    placeBlock(t.root, 0, isFixedMode, _enable, _target);
+    placeBlock(t.root, 0, isFixedMode);
     IsOutofChip();
 }
 
@@ -167,7 +188,7 @@ void Solver::IsOutofChip()
     floorplan_x = Contour_H[l - 1].til_x;
 }
 
-void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool changeParent, Node *_target) // isFixedMode = 1 when we really want to treat fixed block as pre-placed module
+void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode = 1 when we really want to treat fixed block as pre-placed module
 {
     // if (node == _target)
     //     _enable = 1;
@@ -182,23 +203,23 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool changeParen
         Modules[node->index]->rotate();
     int from_x = 0, to_x = 0, Yloc = 0;
     Node *_parent = node->parent;
-    if (isFixedMode && node->parent != 0) // skip those fixed and placed module for those non-root node
-    {
-        bool _isretParentfixednPlaced = 0;
-        bool isLeftChild = node->getParent(Modules, _parent, _isretParentfixednPlaced);
-        if (_parent->parent == 0 && Modules[_parent->index]->fixed_status == 3) // if _parent is root and _parent is fixed & placed
-        {
-            // cout << "change to type 0 !!!!\n";
-            type = 0;
-        }
-        else if (_parent != node->parent)
-        {
-            if (isLeftChild)
-                type = 1;
-            else
-                type = 2;
-        }
-    }
+    // if (isFixedMode && node->parent != 0) // skip those fixed and placed module for those non-root node
+    // {
+    //     bool _isretParentfixednPlaced = 0;
+    //     bool isLeftChild = node->getParent(Modules, _parent, _isretParentfixednPlaced);
+    //     if (_parent->parent == 0 && Modules[_parent->index]->fixed_status == 3) // if _parent is root and _parent is fixed & placed
+    //     {
+    //         // cout << "change to type 0 !!!!\n";
+    //         type = 0;
+    //     }
+    //     else if (_parent != node->parent)
+    //     {
+    //         if (isLeftChild)
+    //             type = 1;
+    //         else
+    //             type = 2;
+    //     }
+    // }
     // for (auto i : Contour_H)
     //     cout << "( " << i.height << " , " << i.til_x << " )"
     //          << " ; ";
@@ -209,12 +230,12 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool changeParen
         {
             if (Modules[node->index]->fixed && isFixedMode && Modules[node->index]->fixed_status == 2)
             {
-                from_x = Modules[node->index]->fix_location.x;
-                // cout << "from_x in type 0 = " << from_x << endl;
-                to_x = from_x + Modules[node->index]->width;
-                // Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
-                Yloc = Modules[node->index]->fix_location.y;
-                Modules[node->index]->fixed_status = 3;
+                // from_x = Modules[node->index]->fix_location.x;
+                // // cout << "from_x in type 0 = " << from_x << endl;
+                // to_x = from_x + Modules[node->index]->width;
+                // // Yloc = findYandUpdateContour_H_fixed(node->index, from_x, to_x);
+                // Yloc = Modules[node->index]->fix_location.y;
+                // Modules[node->index]->fixed_status = 3;
                 // Coord loc(from_x, Yloc);
                 // Modules[node->index]->location = loc;
             }
@@ -225,47 +246,107 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool changeParen
                 from_x = root_loc.x;
                 to_x = from_x + Modules[node->index]->width;
                 Yloc = findY(node->index, from_x, to_x);
-                Coord *_assume = new Coord(root_loc.x, Yloc);
-                bool checking = 1;
+                Coord *_assume = new Coord(root_loc.x, Yloc), *_current = new Coord(from_x, Yloc), *_prevCoord = 0, *_coordIfBothFail = 0;
+                int _prevIndex = -1;
+                bool checking = 1, _prevOP = 0, _isPrevOverlap = 0, _isFailTwice = 0; // _prevOP = 0 -> previously put on top, state = 1 -> previously put at right
                 Module *beyondBlock = 0;
                 // for (auto i : fixedModules)
-                while (checking)
-                    for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
-                    {
-                        if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
-                        {
-                            if (fixedModules[i]->isSlim()) // if the fixed block is slim -> put at its right
-                            {
-                                from_x = fixedModules[i]->fix_location.x + fixedModules[i]->width;
-                                to_x = from_x + Modules[node->index]->width;
-                                Yloc = findY(node->index, from_x, to_x);
-                            }
-                            else // if the fixed block is fat -> put on its top
-                            {
-                                Yloc = fixedModules[i]->fix_location.y + fixedModules[i]->height;
-                                beyondBlock = fixedModules[i];
-                            }
-                            delete _assume;
-                            _assume = new Coord(from_x, Yloc);
-                            break;
-                        }
-                        else if (i == n - 1)
-                        {
-                            Yloc = UpdateContour_H(node->index, from_x, to_x, beyondBlock);
-                            checking = 0;
-                            break;
-                        }
-                        // if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
-                        // {
-                        //     Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
-                        //     break;
-                        // }
-                        // else if (i == n - 1)
-                        // {
-                        //     Yloc = UpdateContour_H(node->index, from_x, to_x);
-                        //     break;
-                        // }
-                    }
+                int collision = isOverlap_specificCoord(Modules[node->index], _assume);
+                if (collision != -1)
+                {
+                    randomPlacement(from_x, to_x, Yloc, node->index, fixedModules[collision], beyondBlock, _assume, _current);
+                    // for (auto fixedModule : fixedModules) // try to place root at every fixed module's top and right
+                    // {
+                    //     if (fixedModules[collisionFixedModule]->isSlim())
+                    //         placeAtRight(from_x, to_x, Yloc, node->index, beyondBlock, fixedModules[collisionFixedModule], _assume);
+                    //     else
+                    //         placeAtTop(from_x, to_x, Yloc, node->index, beyondBlock, fixedModules[collisionFixedModule], _assume);
+                    //     if (isOverlap_specificCoord(Modules[node->index], _assume) == -1) // if no overlap break
+                    //         break;
+                    //     if (!fixedModules[collisionFixedModule]->isSlim())
+                    //         placeAtRight(from_x, to_x, Yloc, node->index, beyondBlock, fixedModules[collisionFixedModule], _assume);
+                    //     else
+                    //         placeAtTop(from_x, to_x, Yloc, node->index, beyondBlock, fixedModules[collisionFixedModule], _assume);
+                    //     if (isOverlap_specificCoord(Modules[node->index], _assume) == -1) // if no overlap break
+                    //         break;
+                    // }
+                }
+                Yloc = UpdateContour_H(node->index, from_x, to_x, beyondBlock);
+                // while (checking)
+                //     for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
+                //     {
+                //         if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                //         {
+                //             if (_isFailTwice == 1)
+                //             {
+                //                 _isFailTwice = 0;
+                //                 delete _assume;
+                //                 _assume = _coordIfBothFail;
+                //             }
+                //             if (_isPrevOverlap == 0)
+                //             {
+                //                 if (fixedModules[i]->isSlim()) // if the fixed block is slim -> put at its right
+                //                 {
+                //                     _prevCoord = new Coord(from_x, Yloc);
+                //                     from_x = fixedModules[i]->fix_location.x + fixedModules[i]->width;
+                //                     to_x = from_x + Modules[node->index]->width;
+                //                     Yloc = findY(node->index, from_x, to_x);
+                //                     _prevOP = 1;
+                //                 }
+                //                 else // if the fixed block is fat -> put on its top
+                //                 {
+                //                     _prevCoord = new Coord(from_x, Yloc);
+                //                     Yloc = fixedModules[i]->fix_location.y + fixedModules[i]->height;
+                //                     beyondBlock = fixedModules[i];
+                //                     _prevOP = 0;
+                //                 }
+                //                 _coordIfBothFail = new Coord(from_x, Yloc);
+                //                 _prevIndex = i;
+                //                 _isPrevOverlap = 1;
+                //             }
+                //             else
+                //             {
+                //                 if (_prevOP == 0)
+                //                 {
+                //                     from_x = fixedModules[_prevIndex]->fix_location.x + fixedModules[_prevIndex]->width;
+                //                     to_x = from_x + Modules[node->index]->width;
+                //                     Yloc = findY(node->index, from_x, to_x);
+                //                 }
+                //                 else
+                //                 {
+                //                     from_x = _prevCoord->x;
+                //                     Yloc = fixedModules[_prevIndex]->fix_location.y + fixedModules[_prevIndex]->height;
+                //                     beyondBlock = fixedModules[_prevIndex];
+                //                 }
+                //                 delete _prevCoord;
+                //                 _prevCoord = 0;
+                //                 _isPrevOverlap = 0;
+                //                 _prevIndex = -1;
+                //                 _isFailTwice = 1;
+                //             }
+
+                //             delete _assume;
+                //             _assume = new Coord(from_x, Yloc);
+                //             break;
+                //         }
+                //         else if (i == n - 1)
+                //         {
+                //             Yloc = UpdateContour_H(node->index, from_x, to_x, beyondBlock);
+                //             checking = 0;
+                //             break;
+                //         }
+                //         // if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                //         // {
+                //         //     Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
+                //         //     break;
+                //         // }
+                //         // else if (i == n - 1)
+                //         // {
+                //         //     Yloc = UpdateContour_H(node->index, from_x, to_x);
+                //         //     break;
+                //         // }
+                //         _isFailTwice = 0;
+                //     }
             }
             else
             {
@@ -294,28 +375,59 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool changeParen
                 to_x = from_x + Modules[node->index]->width;
                 // Yloc = findYandUpdateContour_H(node->index, from_x, to_x);
                 Yloc = findY(node->index, from_x, to_x);
-                Coord *_assume = new Coord(from_x, Yloc);
+                Coord *_assume = new Coord(from_x, Yloc), *_current = new Coord(from_x, Yloc);
+                Module *beyondBlock = 0;
                 // for (auto i : fixedModules)
                 bool checking = 1;
-                while (checking)
-                    for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
-                    {
-                        if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
-                        {
-                            from_x = fixedModules[i]->fix_location.x + fixedModules[i]->width;
-                            to_x = from_x + Modules[node->index]->width;
-                            Yloc = findY(node->index, from_x, to_x);
-                            delete _assume;
-                            _assume = new Coord(from_x, Yloc);
-                            break;
-                        }
-                        else if (i == n - 1)
-                        {
-                            Yloc = UpdateContour_H(node->index, from_x, to_x);
-                            checking = 0;
-                            break;
-                        }
-                    }
+                int collision = isOverlap_specificCoord(Modules[node->index], _assume);
+                if (collision != -1)
+                    randomPlacement(from_x, to_x, Yloc, node->index, fixedModules[collision], beyondBlock, _assume, _current);
+                // if (collision != -1)
+                // {
+                //     // for (auto fixedModule : fixedModules) // try to place root at every fixed module's top and right
+                //     // {
+                //     if (fixedModule->isSlim())
+                //         placeAtRight(from_x, to_x, Yloc, node->index, beyondBlock, fixedModule, _assume);
+                //     else
+                //         placeAtTop(from_x, to_x, Yloc, node->index, beyondBlock, fixedModule, _assume);
+                //     if (isOverlap_specificCoord(Modules[node->index], _assume) != -1) // if overlap
+                //     {
+                //         from_x = _current->x;
+                //         Yloc = _current->y;
+                //         if (!fixedModule->isSlim())
+                //             placeAtRight(from_x, to_x, Yloc, node->index, beyondBlock, fixedModule, _assume);
+                //         else
+                //             placeAtTop(from_x, to_x, Yloc, node->index, beyondBlock, fixedModule, _assume);
+                //         if (isOverlap_specificCoord(Modules[node->index], _assume) != -1) // if no overlap break
+                //         {
+                //             bool r = rand() % 2; // r == 0 -> use the bottom result
+                //             if (r)
+                //         }
+
+                //     } // break;
+                // }
+                Yloc = UpdateContour_H(node->index, from_x, to_x, beyondBlock);
+                // }
+
+                // while (checking)
+                //     for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
+                //     {
+                //         if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                //         {
+                //             from_x = fixedModules[i]->fix_location.x + fixedModules[i]->width;
+                //             to_x = from_x + Modules[node->index]->width;
+                //             Yloc = findY(node->index, from_x, to_x);
+                //             delete _assume;
+                //             _assume = new Coord(from_x, Yloc);
+                //             break;
+                //         }
+                //         else if (i == n - 1)
+                //         {
+                //             Yloc = UpdateContour_H(node->index, from_x, to_x);
+                //             checking = 0;
+                //             break;
+                //         }
+                //     }
             }
             else
             {
@@ -382,8 +494,8 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode, bool changeParen
     // cout << endl;
     // if (Modules[node->index]->fixed)
     //     cout << "fixed Module's location = " << Modules[node->index]->location.x << ' ' << Modules[node->index]->location.y << endl;
-    placeBlock(node->left, 1, isFixedMode, changeParent, _target);
-    placeBlock(node->right, 2, isFixedMode, changeParent, _target);
+    placeBlock(node->left, 1, isFixedMode);
+    placeBlock(node->right, 2, isFixedMode);
 }
 
 int Solver::findYandUpdateContour_H_fixed(int index, int from_x, int to_x)
@@ -654,65 +766,10 @@ void Solver::calculate_area_wirelength()
     // cout<<"HPWL: "<<HPWL<<endl;
 
     area_penalty = 0.0;
-    if (floorplan_x > chip_width || floorplan_y > chip_height) {
-        if (floorplan_x > chip_width && floorplan_y > chip_height) {
-            area_penalty += (floorplan_x * floorplan_y - chip_width * chip_height);
-        } 
-        else if (floorplan_x > chip_width) {
-            area_penalty += ((floorplan_x - chip_width) * floorplan_y);
-        } 
-        else if (floorplan_y > chip_height) {
-            area_penalty += (floorplan_x * (floorplan_y - chip_height));
-        }
-        // area_penalty += ((floorplan_x - chip_width) * (floorplan_x - chip_width) \
-        //             + (floorplan_y - chip_height) * (floorplan_y - chip_height));
-        // area_penalty =  (area_penalty-A_min)/(A_max - A_min);
-    }
-
-    l=Modules.size();
-    for(int i=0; i<l; ++i){
-        int right_x=Modules[i]->location.x+Modules[i]->width;
-        int top_y=Modules[i]->location.y+Modules[i]->height;
-        if(right_x>chip_width && top_y<=chip_height)
-            area_penalty+=((right_x-chip_width)*(right_x-chip_width));
-        else if(right_x<=chip_width && top_y>chip_height)
-            area_penalty+=((top_y-chip_height)*(top_y-chip_height));
-        else if(right_x>chip_width && top_y>chip_height)
-            area_penalty+=((right_x-chip_width)*(right_x-chip_width)+(top_y-chip_height)*(top_y-chip_height));
-    }
-
-}
-
-float Solver::calculate_totalcost(float alpha, float beta)
-{
-    A = 0;
-    HPWL = 0;
-    int prev_til_x = 0;
-
-    
-    int l = Contour_H.size();
-    for (int i = 0; i < l; i++)
+    if (floorplan_x > chip_width || floorplan_y > chip_height)
     {
-        // cout<<Contour_H[i].til_x<<" "<<Contour_H[i].height<<endl;
-        A += (Contour_H[i].til_x - prev_til_x) * Contour_H[i].height;
-        prev_til_x = Contour_H[i].til_x;
-    }
-    // A_norm = (A - A_min) / (A_max - A_min);
-    // cout<<"A: "<<A<<endl;
-    
-
-
-    l = Connections.size();
-    for (int i = 0; i < l; i++)
-    {
-        HPWL += (abs((Modules[Connections[i].index_name1]->location.x + double(Modules[Connections[i].index_name1]->width) / 2) - (Modules[Connections[i].index_name2]->location.x + double(Modules[Connections[i].index_name2]->width) / 2)) + abs((Modules[Connections[i].index_name1]->location.y + double(Modules[Connections[i].index_name1]->height) / 2) - (Modules[Connections[i].index_name2]->location.y + double(Modules[Connections[i].index_name2]->height) / 2))) * Connections[i].pin_Number;
-    }
-    //float HPWL_norm=(HPWL-HPWL_min)/(HPWL_max-HPWL_min);
-    // cout<<"HPWL: "<<HPWL<<endl;
-    
-    area_penalty = 0.0;
-    if (floorplan_x > chip_width || floorplan_y > chip_height) {
-        if (floorplan_x > chip_width && floorplan_y > chip_height) {
+        if (floorplan_x > chip_width && floorplan_y > chip_height)
+        {
             area_penalty += (floorplan_x * floorplan_y - chip_width * chip_height);
         }
         else if (floorplan_x > chip_width)
@@ -727,32 +784,90 @@ float Solver::calculate_totalcost(float alpha, float beta)
         //             + (floorplan_y - chip_height) * (floorplan_y - chip_height));
         // area_penalty =  (area_penalty-A_min)/(A_max - A_min);
     }
-    
-    
-    l=Modules.size();
-    for(int i=0; i<l; ++i){
-        int right_x=Modules[i]->location.x+Modules[i]->width;
-        int top_y=Modules[i]->location.y+Modules[i]->height;
-        if(right_x>chip_width && top_y<=chip_height)
-            area_penalty+=((right_x-chip_width)*(right_x-chip_width));
-        else if(right_x<=chip_width && top_y>chip_height)
-            area_penalty+=((top_y-chip_height)*(top_y-chip_height));
-        else if(right_x>chip_width && top_y>chip_height)
-            area_penalty+=((right_x-chip_width)*(right_x-chip_width)+(top_y-chip_height)*(top_y-chip_height));
+
+    l = Modules.size();
+    for (int i = 0; i < l; ++i)
+    {
+        int right_x = Modules[i]->location.x + Modules[i]->width;
+        int top_y = Modules[i]->location.y + Modules[i]->height;
+        if (right_x > chip_width && top_y <= chip_height)
+            area_penalty += ((right_x - chip_width) * (right_x - chip_width));
+        else if (right_x <= chip_width && top_y > chip_height)
+            area_penalty += ((top_y - chip_height) * (top_y - chip_height));
+        else if (right_x > chip_width && top_y > chip_height)
+            area_penalty += ((right_x - chip_width) * (right_x - chip_width) + (top_y - chip_height) * (top_y - chip_height));
     }
-    
+}
+
+float Solver::calculate_totalcost(float alpha, float beta)
+{
+    A = 0;
+    HPWL = 0;
+    int prev_til_x = 0;
+
+    int l = Contour_H.size();
+    for (int i = 0; i < l; i++)
+    {
+        // cout<<Contour_H[i].til_x<<" "<<Contour_H[i].height<<endl;
+        A += (Contour_H[i].til_x - prev_til_x) * Contour_H[i].height;
+        prev_til_x = Contour_H[i].til_x;
+    }
+    // A_norm = (A - A_min) / (A_max - A_min);
+    // cout<<"A: "<<A<<endl;
+
+    l = Connections.size();
+    for (int i = 0; i < l; i++)
+    {
+        HPWL += (abs((Modules[Connections[i].index_name1]->location.x + double(Modules[Connections[i].index_name1]->width) / 2) - (Modules[Connections[i].index_name2]->location.x + double(Modules[Connections[i].index_name2]->width) / 2)) + abs((Modules[Connections[i].index_name1]->location.y + double(Modules[Connections[i].index_name1]->height) / 2) - (Modules[Connections[i].index_name2]->location.y + double(Modules[Connections[i].index_name2]->height) / 2))) * Connections[i].pin_Number;
+    }
+    // float HPWL_norm=(HPWL-HPWL_min)/(HPWL_max-HPWL_min);
+    //  cout<<"HPWL: "<<HPWL<<endl;
+
+    area_penalty = 0.0;
+    if (floorplan_x > chip_width || floorplan_y > chip_height)
+    {
+        if (floorplan_x > chip_width && floorplan_y > chip_height)
+        {
+            area_penalty += (floorplan_x * floorplan_y - chip_width * chip_height);
+        }
+        else if (floorplan_x > chip_width)
+        {
+            area_penalty += ((floorplan_x - chip_width) * floorplan_y);
+        }
+        else if (floorplan_y > chip_height)
+        {
+            area_penalty += (floorplan_x * (floorplan_y - chip_height));
+        }
+        // area_penalty += ((floorplan_x - chip_width) * (floorplan_x - chip_width) \
+        //             + (floorplan_y - chip_height) * (floorplan_y - chip_height));
+        // area_penalty =  (area_penalty-A_min)/(A_max - A_min);
+    }
+
+    l = Modules.size();
+    for (int i = 0; i < l; ++i)
+    {
+        int right_x = Modules[i]->location.x + Modules[i]->width;
+        int top_y = Modules[i]->location.y + Modules[i]->height;
+        if (right_x > chip_width && top_y <= chip_height)
+            area_penalty += ((right_x - chip_width) * (right_x - chip_width));
+        else if (right_x <= chip_width && top_y > chip_height)
+            area_penalty += ((top_y - chip_height) * (top_y - chip_height));
+        else if (right_x > chip_width && top_y > chip_height)
+            area_penalty += ((right_x - chip_width) * (right_x - chip_width) + (top_y - chip_height) * (top_y - chip_height));
+    }
+
     // cout<<0.3 * A<<" "<<0.7 * HPWL<<" "<<2*(Contour_H[Contour_H.size()-1].til_x-chip_width)<<" "<<2*(highest-chip_height)<<endl;
     // return alpha * A_norm + beta * HPWL_norm + (1-alpha-beta) * area_penalty; //////////////////////////////////////////////
     // return 0.2 * A_norm + 0.5 * HPWL_norm + 0.3 * area_penalty;
-    //return 0.2 * A + 0.5 * HPWL + 0.3 * area_penalty;
-    //return 0.5 * HPWL + 0.5 * area_penalty;
+    // return 0.2 * A + 0.5 * HPWL + 0.3 * area_penalty;
+    // return 0.5 * HPWL + 0.5 * area_penalty;
     // return beta * HPWL + (1-beta) * area_penalty;
 
     // cout<<"HPWL: "<<HPWL<<" HPWL_norm: "<<HPWL_norm<<endl;
     // cout<<"area: "<<area_penalty<<" areaL_norm: "<<area_penalty_norm<<endl;
     // cout<<endl;
-    
-    float ans = alpha*A/A_norm+ beta * HPWL/HPWL_norm + (1-alpha-beta) * area_penalty/area_penalty_norm;
+
+    float ans = alpha * A / A_norm + beta * HPWL / HPWL_norm + (1 - alpha - beta) * area_penalty / area_penalty_norm;
     // cout << "A: " << A << " An: " << A_norm << endl;
     // cout << "A/An: " << A/A_norm << " H/Hn: " << HPWL/HPWL_norm << " a/an: " << area_penalty/area_penalty_norm << endl;
     // cout << "Cost: " << ans << endl;

@@ -20,29 +20,31 @@ int main(int argc, char *argv[])
     B_Tree t;
     t.create_tree(s);
     t.initialTemp(s);
-    
+
     // no fixed
-    
+
     // do{
     //     t.fastSA5(s, 0.5);
     //     //t.printTree();
     // } while(s.OutofChip_y || s.OutofChip_x);
-    
+
     // //t.fastSA5(s, 0.5);
     // cout<<"W: "<<s.HPWL<<endl;
     // cout<<"A: "<<s.A<<endl;
     // cout<<"floorplan x: "<<s.floorplan_x<<endl;
     // cout<<"floorplan y: "<<s.floorplan_y<<endl;
     // s.outputFloorPlan();
-    
+
     // t.fastSA5(s, 0.5);
-    
+
     int rep = 0;
     do
     {
         cout << "rep: " << rep++ << endl;
-        if(rep == 10){
-            for(int j=0; j<100; j++) t.init_perturb(s);
+        if (rep == 10)
+        {
+            for (int j = 0; j < 100; j++)
+                t.init_perturb(s);
             rep = 0;
         }
         t.SA(s, 0.5);
@@ -58,13 +60,12 @@ int main(int argc, char *argv[])
         // } while(s.OutofChip_y || s.OutofChip_x);
         t.prePlacedModule(s);
         s.outputFloorPlan();
-        cout << "1: " << !s.checkOverlap() << " 2: " <<  s.OutofChip_y << " 3: " << s.OutofChip_x << endl; 
+        cout << "1: " << !s.checkOverlap() << " 2: " << s.OutofChip_y << " 3: " << s.OutofChip_x << endl;
     } while (!s.checkOverlap() || s.OutofChip_y || s.OutofChip_x);
-    
+
     s.outputFloorPlan();
     cout << '\a' << endl;
-    
-    
+
     // t.printTree();
     // s.floorplan(t, 0);
     // bool _first = 1;

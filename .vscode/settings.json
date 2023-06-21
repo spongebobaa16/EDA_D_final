@@ -54,7 +54,8 @@
         "ratio": "cpp",
         "variant": "cpp",
         "ctime": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "__node_handle": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

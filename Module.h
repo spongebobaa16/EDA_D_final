@@ -30,6 +30,8 @@ public:
     void calculate_w_l(int area);
     void rotate()
     {
+        if (fixed)
+            return;
         int tmp = width;
         width = height;
         height = tmp;
