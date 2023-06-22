@@ -70,8 +70,8 @@ def get_color(i=0):
 
 def main():
     # read file
-    _pre = input("1 for before, 0 for after : ")
-    # _pre = '0'
+    # _pre = input("1 for before, 0 for after : ")
+    _pre = '0'
     _src = "floorplan.txt" if _pre == '0' else "floorplan_before.txt"
     isFirstLine = True
     positions = []

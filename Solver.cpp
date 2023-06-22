@@ -455,29 +455,32 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode =
                 from_x = Modules[_parent->index]->location.x;
                 to_x = from_x + Modules[node->index]->width;
                 Yloc = findY(node->index, from_x, to_x);
-                Coord *_assume = new Coord(from_x, Yloc);
+                Coord *_assume = new Coord(from_x, Yloc), *_current = new Coord(from_x, Yloc);
                 bool checking = 1;
                 Module *beyondBlock = 0;
                 // for (auto i : fixedModules)
-                while (checking)
-                    for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
-                    {
-                        if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
-                        {
-                            Yloc = fixedModules[i]->fix_location.y + fixedModules[i]->height;
-                            delete _assume;
-                            _assume = new Coord(from_x, Yloc);
-                            beyondBlock = fixedModules[i];
-                            // Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
-                            break;
-                        }
-                        else if (i == n - 1)
-                        {
-                            Yloc = UpdateContour_H(node->index, from_x, to_x, beyondBlock);
-                            checking = 0;
-                            break;
-                        }
-                    }
+                int collision = isOverlap_specificCoord(Modules[node->index], _assume);
+                if (collision != -1)
+                    randomPlacement(from_x, to_x, Yloc, node->index, beyondBlock, fixedModules[collision], _assume, _current);
+                // while (checking)
+                //     for (size_t i = 0, n = fixedModules.size(); i < n; ++i)
+                //     {
+                //         if (Modules[node->index]->isOverlap(fixedModules[i], _assume))
+                //         {
+                //             Yloc = fixedModules[i]->fix_location.y + fixedModules[i]->height;
+                //             delete _assume;
+                //             _assume = new Coord(from_x, Yloc);
+                //             beyondBlock = fixedModules[i];
+                //             // Yloc = UpdateContour_H(node->index, from_x, to_x, fixedModules[i]);
+                //             break;
+                //         }
+                //         else if (i == n - 1)
+                //         {
+                Yloc = UpdateContour_H(node->index, from_x, to_x, beyondBlock);
+                //             checking = 0;
+                //             break;
+                //         }
+                //     }
             }
             else
             {
