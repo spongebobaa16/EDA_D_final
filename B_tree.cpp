@@ -454,8 +454,8 @@ void B_Tree::SA(Solver &s, float beta)
         }
         // cout << "T0: " << T0 << endl;
         // cout<<iter<<" "<<T<<" "<<frozen<<endl;
-        if (T < frozen)
-            cout << iter << " FROzeee" << endl;
+        // if (T < frozen)
+        // cout << iter << " FROzeee" << endl;
         // cout << !s.checkOverlap() << " " << s.OutofChip_y << " " << s.OutofChip_x << endl;
         // cout << (!s.checkOverlap() || s.OutofChip_y || s.OutofChip_x) << endl;
         // cout<<endl;

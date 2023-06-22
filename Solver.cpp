@@ -254,7 +254,7 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode =
                 int collision = isOverlap_specificCoord(Modules[node->index], _assume);
                 if (collision != -1)
                 {
-                    randomPlacement(from_x, to_x, Yloc, node->index, fixedModules[collision], beyondBlock, _assume, _current);
+                    randomPlacement(from_x, to_x, Yloc, node->index, beyondBlock, fixedModules[collision], _assume, _current);
                     // for (auto fixedModule : fixedModules) // try to place root at every fixed module's top and right
                     // {
                     //     if (fixedModules[collisionFixedModule]->isSlim())
@@ -381,7 +381,7 @@ void Solver::placeBlock(Node *node, int type, bool isFixedMode) // isFixedMode =
                 bool checking = 1;
                 int collision = isOverlap_specificCoord(Modules[node->index], _assume);
                 if (collision != -1)
-                    randomPlacement(from_x, to_x, Yloc, node->index, fixedModules[collision], beyondBlock, _assume, _current);
+                    randomPlacement(from_x, to_x, Yloc, node->index, beyondBlock, fixedModules[collision], _assume, _current);
                 // if (collision != -1)
                 // {
                 //     // for (auto fixedModule : fixedModules) // try to place root at every fixed module's top and right

@@ -61,7 +61,7 @@ public:
         _assume = new Coord(from_x, Yloc);
         beyondBlock = 0;
     }
-    void placeAtTop(int &from_x, int &to_x, int &Yloc, int node_index, Module *beyondBlock, Module *&fixedModule, Coord *&_assume)
+    void placeAtTop(int &from_x, int &to_x, int &Yloc, int node_index, Module *&beyondBlock, Module *fixedModule, Coord *&_assume)
     {
         // from_x = fixedModule->fix_location.x;
         from_x = from_x;
@@ -71,7 +71,7 @@ public:
         delete _assume;
         _assume = new Coord(from_x, Yloc);
     }
-    void randomPlacement(int &from_x, int &to_x, int &Yloc, int node_index, Module *fixedModule, Module *&beyondBlock, Coord *&_assume, Coord *&_current)
+    void randomPlacement(int &from_x, int &to_x, int &Yloc, int node_index, Module *&beyondBlock, Module *fixedModule, Coord *&_assume, Coord *&_current)
     {
         if (fixedModule->isSlim())
             placeAtRight(from_x, to_x, Yloc, node_index, beyondBlock, fixedModule, _assume);
@@ -104,11 +104,10 @@ public:
                 {
                     _current->x = _assume->x;
                     _current->y = _assume->y;
-                    randomPlacement(from_x, to_x, Yloc, node_index, fixedModules[collision], beyondBlock, _assume, _current);
+                    randomPlacement(from_x, to_x, Yloc, node_index, beyondBlock, fixedModules[collision], _assume, _current);
                 }
             }
-
-        } // break;
+        }
     }
     int isOverlap_specificCoord(Module *_module, Coord *_assume = 0) // if exist overlap -> return 1; else return 0;
     {
