@@ -22,6 +22,7 @@ def visualize(positions, bounding_box, path="floorplan.png", title="Floorplan"):
     # Plot every rectangle
     for i, rectangle in enumerate(positions):
         color, fontcolor = get_color(i)
+        fontcolor = "#000000"
         r = patches.Rectangle(
             xy=(rectangle["x"], rectangle["y"]),
             width=rectangle["width"],
@@ -86,7 +87,8 @@ def main():
                 positions.append(
                     {"name": name, "x": float(tokens[1]), "y": float(tokens[2]), "width": float(tokens[3]), "height": float(tokens[4])})
             isFirstLine = False
-    visualize(positions, bounding_box, "floorplan.png" if _pre == '0' else "floorplan_before.png")
+    visualize(positions, bounding_box, "floorplan.png" if _pre ==
+              '0' else "floorplan_before.png")
     # print(bounding_box)
     # print(positions[0]["name"])
 

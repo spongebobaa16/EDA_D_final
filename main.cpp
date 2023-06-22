@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     do
     {
         cout << "rep: " << rep++ << endl;
-        if (rep == 10)
+        if (rep == 5)
         {
             for (int j = 0; j < 100; j++)
                 t.init_perturb(s);
@@ -60,6 +60,12 @@ int main(int argc, char *argv[])
         // } while(s.OutofChip_y || s.OutofChip_x);
         t.prePlacedModule(s);
         s.outputFloorPlan();
+        size_t availableArea = s.chip_height * s.chip_width, requiredArea = 0;
+        for (auto i : s.fixedModules)
+            availableArea -= i->area;
+        for (size_t i = 0; i < s.num_softmodules; ++i)
+            requiredArea += s.Modules[i]->width * s.Modules[i]->height;
+        cout << "availableArea = " << availableArea << ", requiredArea = " << requiredArea << endl;
         cout << "1: " << !s.checkOverlap() << " 2: " << s.OutofChip_y << " 3: " << s.OutofChip_x << endl;
     } while (!s.checkOverlap() || s.OutofChip_y || s.OutofChip_x);
 
